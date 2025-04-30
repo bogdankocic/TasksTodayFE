@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link, Outlet, Navigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
+import SidebarModal from './SidebarModal';
 
 const DashboardLayout: React.FC = () => {
   const { user, logout } = useAuth();
-const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   if (!user) {
     return <Navigate to="/" replace />;
@@ -21,9 +23,10 @@ const [isProfileOpen, setIsProfileOpen] = useState(false);
     { to: "/projects", label: "Projects" },
     { to: "/tasks", label: "Tasks" }
   ];
+  
   return (
     <div className="flex h-screen bg-gray-50">
-      <aside className="w-64 bg-white shadow-lg border border-gray-200 rounded-r-lg">
+      <aside className={`w-64 bg-white shadow-lg border border-gray-200 rounded-r-lg ${isSidebarOpen ? 'block' : 'hidden lg:block'}`}>
         <nav className="mt-12 flex flex-col space-y-2 px-4">
           <div className="mb-4">
             <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">
@@ -58,7 +61,10 @@ const [isProfileOpen, setIsProfileOpen] = useState(false);
       <main className="flex-1 flex flex-col">
         <header className="sticky top-0 z-10 bg-white border-b border-gray-200">
           <div className="flex items-center justify-between h-14 px-4 sm:px-6 lg:px-8">
-            <button className="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+            <button 
+              className="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100"
+              onClick={() => setIsSidebarOpen(true)}
+            >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
@@ -118,6 +124,7 @@ const [isProfileOpen, setIsProfileOpen] = useState(false);
           <Outlet />
         </div>
       </main>
+      <SidebarModal isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} user={user} />
     </div>
   );
 };
