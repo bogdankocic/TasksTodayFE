@@ -26,7 +26,7 @@ const DashboardLayout: React.FC = () => {
   
   return (
     <div className="flex h-screen bg-gray-50">
-      <aside className={`w-64 bg-white shadow-lg border border-gray-200 rounded-r-lg ${isSidebarOpen ? 'block' : 'hidden lg:block'}`}>
+      <aside className={`w-64 bg-white shadow-lg border border-gray-200 rounded-r-lg hidden lg:block`}>
         <nav className="mt-12 flex flex-col space-y-2 px-4">
           <div className="mb-4">
             <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">
@@ -70,7 +70,7 @@ const DashboardLayout: React.FC = () => {
               </svg>
             </button>
             
-            <div className="hidden lg:flex items-center flex-shrink-0">
+            <div className="flex-1 flex items-center justify-center lg:justify-start flex-shrink-0">
               <span className="text-xl font-semibold">TasksToday</span>
             </div>
             
