@@ -16,7 +16,7 @@ const DashboardLayout: React.FC = () => {
   const [projectsError, setProjectsError] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const [editingProject, setEditingProject] = useState<{ id: number; title: string; description: string } | null>(null);
+  const [editingProject, setEditingProject] = useState<{ id: number; title: string; description: string; teams: { id: number; title: string; project_id: number; created_at: string }[] } | null>(null);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -38,6 +38,7 @@ const DashboardLayout: React.FC = () => {
   if (!user) {
     return <Navigate to="/" replace />;
   }
+  
 
   const adminNavItems = [
     { to: "/organizations", label: "Organizations" },
@@ -155,13 +156,13 @@ const DashboardLayout: React.FC = () => {
                   {loadingProjects && <p className="px-4 text-gray-500">Loading projects...</p>}
                   {projectsError && <p className="px-4 text-red-500">{projectsError}</p>}
                   {!loadingProjects && !projectsError && (
-                    <SidebarProjects
-                      projects={projectsWithPermissions}
-                      canCreate={canCreateProject}
-                      onCreate={handleCreateProject}
-                      onUpdate={handleUpdateProject}
-                      onDelete={handleDeleteProject}
-                    />
+                  <SidebarProjects
+                    projects={projectsWithPermissions}
+                    canCreate={canCreateProject}
+                    onCreate={handleCreateProject}
+                    onUpdate={handleUpdateProject}
+                    onDelete={handleDeleteProject}
+                  />
                   )}
                 </>
               )}
@@ -190,7 +191,7 @@ const DashboardLayout: React.FC = () => {
                 <div className="relative inline-block">
                 <button 
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="reset-button-border-and-padding h-13 w-13 rounded-full"
+                  className="reset-button-border-and-padding h-12 w-12 rounded-full"
                 >
                    {user.profile_photo ? (
                     <img 
@@ -245,7 +246,8 @@ const DashboardLayout: React.FC = () => {
         isOpen={isUpdateModalOpen}
         onClose={handleUpdateModalClose}
         onUpdate={handleUpdateModalSubmit}
-        initialData={editingProject ?? { title: '', description: '' }}
+        initialData={editingProject ?? { title: '', description: '', teams: [] }}
+        userPermissions={user.permissions}
       />
     </div>
   );
