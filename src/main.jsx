@@ -9,6 +9,7 @@ import Users from './components/Users'
 import MyProfile from './components/MyProfile'
 import Login from './components/Login'
 import Landing from './components/Landing'
+import UserActivate from './components/UserActivate'
 import { AuthProvider, useAuth } from './components/AuthContext'
 import React from 'react'
 
@@ -28,6 +29,7 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/user-activate" element={<UserActivate />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     );

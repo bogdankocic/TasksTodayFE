@@ -150,12 +150,14 @@ const Users: React.FC = () => {
     <div className="max-w-6xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-semibold text-gray-900">Users</h1>
-        <button
-          onClick={handleInviteOpen}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition"
-        >
-          Invite New User
-        </button>
+        {currentUser?.permissions?.can_invite_user && (
+          <button
+            onClick={handleInviteOpen}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition"
+          >
+            Invite New User
+          </button>
+        )}
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full border border-gray-200">
@@ -187,14 +189,16 @@ const Users: React.FC = () => {
                 <td className="px-4 py-2 border-b align-middle">{user.teamrole ?? 'N/A'}</td>
                 <td className="px-4 py-2 border-b align-middle">{user.karma.currentLevel}</td>
                 <td className="px-4 py-2 border-b text-center align-middle">
-                <button
-                      onClick={() => handleDelete(user.id)}
-                      disabled={currentUser?.id === user.id}
-                      className={`text-red-600 hover:text-red-800 font-semibold ${currentUser?.id === user.id ? 'disabled:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none' : null}`}
-                      aria-label={`Delete user ${user.first_name} ${user.last_name}`}
-                    >
-                      Delete
-                </button>
+                {currentUser?.permissions?.can_delete_user && (
+                  <button
+                    onClick={() => handleDelete(user.id)}
+                    disabled={currentUser?.id === user.id}
+                    className={`text-red-600 hover:text-red-800 font-semibold ${currentUser?.id === user.id ? 'disabled:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none' : null}`}
+                    aria-label={`Delete user ${user.first_name} ${user.last_name}`}
+                  >
+                    Delete
+                  </button>
+                )}
                 </td>
               </tr>
             ))}

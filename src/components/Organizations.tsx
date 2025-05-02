@@ -12,6 +12,7 @@ const Organizations: React.FC = () => {
   const [newOrgName, setNewOrgName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<any | null>(null);
 
   // New state for confirm modal
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -30,8 +31,16 @@ const Organizations: React.FC = () => {
     }
   };
 
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await apiService.getSelf();
+      setCurrentUser(response.data);
+    } catch {}
+  };
+
   useEffect(() => {
     fetchOrganizations();
+    fetchCurrentUser();
   }, []);
 
   const handleDelete = async (id: number) => {
@@ -91,12 +100,14 @@ const Organizations: React.FC = () => {
           onChange={(e) => setNewOrgName(e.target.value)}
           className="flex-grow border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <button
-          onClick={handleCreate}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-        >
-          Create
-        </button>
+        {currentUser?.permissions?.can_create_organization && (
+          <button
+            onClick={handleCreate}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            Create
+          </button>
+        )}
       </div>
 
       {loading ? (
@@ -109,13 +120,15 @@ const Organizations: React.FC = () => {
               className="flex justify-between items-center border border-gray-200 rounded p-4"
             >
               <span className="text-gray-800 font-medium">{org.name}</span>
-              <button
-                onClick={() => handleDelete(org.id)}
-                className="text-red-600 hover:text-red-800 transition"
-                aria-label={`Delete organization ${org.name}`}
-              >
-                Delete
-              </button>
+              {currentUser?.permissions?.can_delete_organization && (
+                <button
+                  onClick={() => handleDelete(org.id)}
+                  className="text-red-600 hover:text-red-800 transition"
+                  aria-label={`Delete organization ${org.name}`}
+                >
+                  Delete
+                </button>
+              )}
             </li>
           ))}
           {organizations.length === 0 && (
