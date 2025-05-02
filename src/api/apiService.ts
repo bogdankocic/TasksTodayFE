@@ -68,7 +68,13 @@ class ApiService {
     this.axiosInstance.delete(`/organizations/${id}`);
 
   // Users
-  getUsers = () => this.axiosInstance.get('/users');
+  getUsers = (filter?: { organization_id?: string | number | null }) => {
+    let url = '/users';
+    if (filter && filter.organization_id != null) {
+      url += `?organization_id=${encodeURIComponent(filter.organization_id)}`;
+    }
+    return this.axiosInstance.get(url);
+  };
 
   deleteUser = (id: string | number) =>
     this.axiosInstance.delete(`/users/${id}`);

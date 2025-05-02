@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import apiService from '../api/apiService';
 import ConfirmModal from './ConfirmModal';
+import { useSearchParams } from 'react-router-dom';
 
 interface User {
   id: number | string;
@@ -11,6 +12,10 @@ interface User {
   teamrole: string | null;
   karma: {
     currentLevel: string;
+  };
+  organization?: {
+    id: number | string;
+    name: string;
   };
 }
 
@@ -31,11 +36,17 @@ const Users: React.FC = () => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [userIdToDelete, setUserIdToDelete] = useState<number | string | null>(null);
 
+  const [searchParams] = useSearchParams();
+
   const fetchUsers = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiService.getUsers();
+      const organizationId = searchParams.get('organization_id');
+      const url = organizationId ? `/users?organization_id=${organizationId}` : '/users';
+      const response = organizationId
+        ? await apiService.getUsers({ organization_id: organizationId })
+        : await apiService.getUsers();
       console.log('Users API response:', response.data);
       setUsers(response.data);
     } catch (err) {
@@ -167,10 +178,11 @@ const Users: React.FC = () => {
               <th className="text-left px-4 py-2 border-b">Last Name</th>
               <th className="text-left px-4 py-2 border-b">Email</th>
               <th className="text-center px-4 py-2 border-b">Verified</th>
-              <th className="text-left px-4 py-2 border-b">Team Role</th>
-              <th className="text-left px-4 py-2 border-b">Karma Level</th>
-              <th className="text-center px-4 py-2 border-b">Actions</th>
-            </tr>
+          <th className="text-left px-4 py-2 border-b">Team Role</th>
+          <th className="text-left px-4 py-2 border-b">Karma Level</th>
+          <th className="text-left px-4 py-2 border-b">Organization</th>
+          <th className="text-center px-4 py-2 border-b">Actions</th>
+        </tr>
           </thead>
           <tbody>
             {users.map((user) => (
@@ -188,6 +200,7 @@ const Users: React.FC = () => {
                 </td>
                 <td className="px-4 py-2 border-b align-middle">{user.teamrole ?? 'N/A'}</td>
                 <td className="px-4 py-2 border-b align-middle">{user.karma.currentLevel}</td>
+                <td className="px-4 py-2 border-b align-middle">{user.organization?.name ?? 'N/A'}</td>
                 <td className="px-4 py-2 border-b text-center align-middle">
                 {currentUser?.permissions?.can_delete_user && (
                   <button

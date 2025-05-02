@@ -119,7 +119,12 @@ const Organizations: React.FC = () => {
               key={org.id}
               className="flex justify-between items-center border border-gray-200 rounded p-4"
             >
-              <span className="text-gray-800 font-medium">{org.name}</span>
+              <a
+                href={`/users?organization_id=${org.id}`}
+                className="text-gray-800 font-medium hover:underline"
+              >
+                {org.name}
+              </a>
               {currentUser?.permissions?.can_delete_organization && (
                 <button
                   onClick={() => handleDelete(org.id)}
