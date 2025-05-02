@@ -30,10 +30,10 @@ const DashboardLayout: React.FC = () => {
         <nav className="mt-12 flex flex-col space-y-2 px-4">
           <div className="mb-4">
             <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">
-              {user.teamRole === 'admin' ? 'Administration' : 'My Workspace'}
+              {user.role_id === 1 ? 'Administration' : 'My Workspace'}
             </h3>
             <div className="space-y-1">
-              {user.teamRole === 'admin' ? (
+              {user.role_id === 1 ? (
                 adminNavItems.map((item) => (
                   <Link
                     key={item.to}
@@ -76,19 +76,19 @@ const DashboardLayout: React.FC = () => {
             
             <div className="flex items-center gap-4">
               {user ? (
-                <div className="relative">
-                  <button 
-                    onClick={() => setIsProfileOpen(!isProfileOpen)}
-                    className="flex items-center justify-center h-9 w-9 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors"
-                  >
-                    {user.profile_photo ? (
-                      <img 
-                        src={user.profile_photo} 
-                        alt="Profile" 
-                        className="h-full w-full rounded-full object-cover"
-                      />
+                <div className="relative inline-block">
+                <button 
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="reset-button-border-and-padding h-13 w-13 rounded-full"
+                >
+                   {user.profile_photo ? (
+                    <img 
+                      src={user.profile_photo} 
+                      alt="Profile" 
+                      className="h-12 inline rounded-full"
+                    />
                     ) : (
-                      <span className="text-gray-600">
+                      <span className="text-gray-600 text-sm font-medium">
                         {(user.first_name?.[0] || '') + (user.last_name?.[0] || '')}
                       </span>
                     )}
@@ -96,9 +96,9 @@ const DashboardLayout: React.FC = () => {
                   
                   {isProfileOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 border border-gray-200">
-                      <button className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left">
+                      <Link to="/my-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left">
                         My Profile
-                      </button>
+                      </Link>
                       <button 
                         onClick={() => logout()} 
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"

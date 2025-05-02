@@ -37,7 +37,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (email: string, password: string) => {
     try {
-      console.log('Attempting login for user:', email);
       const loginResponse = await apiService.login({ email, password });
       // Store token from login response
       const token = loginResponse.data.token;
@@ -47,7 +46,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const response = await apiService.getSelf();
       setUser(response.data);
       setIsAuthenticated(true);
-      console.log('Login successful, user data:', response.data);
       // Redirect to landing page
       navigate('/landing');
     } catch (error) {

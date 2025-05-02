@@ -5,6 +5,11 @@ module.exports = {
     './index.html'
   ],
   theme: {
+    extend: {
+      colors: {
+        blackish: "#1a1a1a",
+      },
+    },
     extend: {},
   },
   plugins: [],

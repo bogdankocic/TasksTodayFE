@@ -14,7 +14,7 @@ class ApiService {
       withCredentials: true, // for cookies if needed
     });
 
-    // Request interceptor to add auth token if available
+    // Request interceptor for the default instance to add auth token if available
     this.axiosInstance.interceptors.request.use(
       (config: AxiosRequestConfig) => {
         const token = localStorage.getItem('authToken');
@@ -44,7 +44,7 @@ class ApiService {
 
   sanctum = () => this.axiosInstance.get('/auth/sanctum');
 
-  inviteUser = (data: { email: string }) =>
+  inviteUser = (data: { email: string; organization_id?: string | number; team_role?: string }) =>
     this.axiosInstance.post('/auth/invite-user', data);
 
   activate = (data: { token: string }) =>
@@ -59,8 +59,10 @@ class ApiService {
   getOrganization = (id: string | number) =>
     this.axiosInstance.get(`/organizations/${id}`);
 
-  updateOrganization = (id: string | number, data: any) =>
-    this.axiosInstance.post(`/organizations/${id}`, data);
+  updateOrganization = (id: string | number, data: FormData) =>
+    this.axiosInstance.post(`/organizations/${id}`, data, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
 
   deleteOrganization = (id: string | number) =>
     this.axiosInstance.delete(`/organizations/${id}`);
@@ -71,8 +73,11 @@ class ApiService {
   deleteUser = (id: string | number) =>
     this.axiosInstance.delete(`/users/${id}`);
 
-  selfUpdate = (data: any) =>
-    this.axiosInstance.post('/users/self-update', data);
+  selfUpdate = (data: FormData) =>
+    this.axiosInstance.post('/users/self-update', data, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
 
   getSelf = () => this.axiosInstance.get('/users/self');
 

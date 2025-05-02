@@ -56,15 +56,10 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
+@layer components {
+  .reset-button-border-and-padding {
+    border: none !important;
+    border-radius: calc(infinity * 1px) !important;
+    padding: 0 !important;
   }
 }

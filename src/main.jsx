@@ -6,6 +6,7 @@ import DashboardLayout from './components/DashboardLayout'
 import DashboardHome from './components/DashboardHome'
 import Organizations from './components/Organizations'
 import Users from './components/Users'
+import MyProfile from './components/MyProfile'
 import Login from './components/Login'
 import Landing from './components/Landing'
 import { AuthProvider, useAuth } from './components/AuthContext'
@@ -38,6 +39,7 @@ const AppRoutes = () => {
         <Route index element={<DashboardHome />} />
         <Route path="organizations" element={<Organizations />} />
         <Route path="users" element={<Users />} />
+        <Route path="my-profile" element={<MyProfile />} />
       </Route>
     </Routes>
   );
