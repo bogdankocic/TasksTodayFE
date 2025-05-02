@@ -6,6 +6,7 @@ import DashboardLayout from './components/DashboardLayout'
 import DashboardHome from './components/DashboardHome'
 import Organizations from './components/Organizations'
 import Users from './components/Users'
+import OrganizationPage from './components/OrganizationPage'
 import MyProfile from './components/MyProfile'
 import Login from './components/Login'
 import Landing from './components/Landing'
@@ -40,6 +41,7 @@ const AppRoutes = () => {
       <Route path="/" element={<DashboardLayout />}>
         <Route index element={<DashboardHome />} />
         <Route path="organizations" element={<Organizations />} />
+        <Route path="organization" element={<OrganizationPage />} />
         <Route path="users" element={<Users />} />
         <Route path="my-profile" element={<MyProfile />} />
       </Route>

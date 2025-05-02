@@ -18,7 +18,6 @@ const DashboardLayout: React.FC = () => {
   ];
 
   const userNavItems = [
-    { to: "/organization", label: "Organization" },
     { to: "/users", label: "Users" },
     { to: "/projects", label: "Projects" },
     { to: "/tasks", label: "Tasks" }
@@ -44,15 +43,24 @@ const DashboardLayout: React.FC = () => {
                   </Link>
                 ))
               ) : (
-                userNavItems.map((item) => (
+                <>
                   <Link
-                    key={item.to}
-                    to={item.to}
+                    key="user-organization"
+                    to="/organization"
                     className="block py-2 px-4 rounded-lg text-gray-700 hover:bg-gray-100 transition"
                   >
-                    {item.label}
+                    Organization
                   </Link>
-                ))
+                  {userNavItems.map((item) => (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      className="block py-2 px-4 rounded-lg text-gray-700 hover:bg-gray-100 transition"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </>
               )}
             </div>
           </div>
