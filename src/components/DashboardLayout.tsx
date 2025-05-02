@@ -1,12 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, Outlet, Navigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import SidebarModal from './SidebarModal';
+import SidebarProjects from './SidebarProjects';
+import CreateProjectModal from './CreateProjectModal';
+import UpdateProjectModal from './UpdateProjectModal';
+import apiService from '../api/apiService';
 
 const DashboardLayout: React.FC = () => {
   const { user, logout } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [loadingProjects, setLoadingProjects] = useState(true);
+  const [projectsError, setProjectsError] = useState<string | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<{ id: number; title: string; description: string } | null>(null);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      setLoadingProjects(true);
+      setProjectsError(null);
+      try {
+        const response = await apiService.getProjects();
+        setProjects(response.data);
+      } catch (error) {
+        setProjectsError('Failed to load projects');
+      } finally {
+        setLoadingProjects(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
 
   if (!user) {
     return <Navigate to="/" replace />;
@@ -18,11 +45,76 @@ const DashboardLayout: React.FC = () => {
   ];
 
   const userNavItems = [
-    { to: "/users", label: "Users" },
-    { to: "/projects", label: "Projects" },
-    { to: "/tasks", label: "Tasks" }
+    { to: "/users", label: "Users" }
   ];
-  
+
+  // Adjust permissions based on user.permissions object
+  const canCreateProject = user.permissions?.can_create_project ?? false;
+
+  const handleCreateProject = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const handleUpdateProject = (projectId: number) => {
+    const project = projects.find((p) => p.id === projectId);
+    if (project) {
+      setEditingProject(project);
+      setIsUpdateModalOpen(true);
+    }
+  };
+
+  const handleDeleteProject = async (projectId: number) => {
+    try {
+      await apiService.deleteProject(projectId);
+      // Refresh projects list
+      const response = await apiService.getProjects();
+      setProjects(response.data);
+    } catch (error) {
+      alert('Failed to delete project');
+    }
+  };
+
+  const handleCreateModalClose = () => {
+    setIsCreateModalOpen(false);
+  };
+
+  const handleUpdateModalClose = () => {
+    setIsUpdateModalOpen(false);
+    setEditingProject(null);
+  };
+
+  const handleCreateModalSubmit = async (data: { title: string; description: string }) => {
+    try {
+      await apiService.createProject(data);
+      setIsCreateModalOpen(false);
+      // Refresh projects list
+      const response = await apiService.getProjects();
+      setProjects(response.data);
+    } catch (error) {
+      alert('Failed to create project');
+    }
+  };
+
+  const handleUpdateModalSubmit = async (data: { title: string; description: string }) => {
+    if (!editingProject) return;
+    try {
+      await apiService.updateProject(editingProject.id, data);
+      setIsUpdateModalOpen(false);
+      setEditingProject(null);
+      const response = await apiService.getProjects();
+      setProjects(response.data);
+    } catch (error) {
+      alert('Failed to update project');
+    }
+  };
+
+  // For each project, determine canUpdate and canDelete based on user permissions
+  const projectsWithPermissions = projects.map((project) => ({
+    ...project,
+    canUpdate: user.permissions?.can_update_project ?? false,
+    canDelete: user.permissions?.can_delete_project ?? false,
+  }));
+
   return (
     <div className="flex h-screen bg-gray-50">
       <aside className={`w-64 bg-white shadow-lg border border-gray-200 rounded-r-lg hidden lg:block`}>
@@ -44,22 +136,33 @@ const DashboardLayout: React.FC = () => {
                 ))
               ) : (
                 <>
-                  <Link
-                    key="user-organization"
-                    to="/organization"
-                    className="block py-2 px-4 rounded-lg text-gray-700 hover:bg-gray-100 transition"
-                  >
-                    Organization
-                  </Link>
-                  {userNavItems.map((item) => (
                     <Link
-                      key={item.to}
-                      to={item.to}
+                      key="user-organization"
+                      to="/organization"
                       className="block py-2 px-4 rounded-lg text-gray-700 hover:bg-gray-100 transition"
                     >
-                      {item.label}
+                      Organization
                     </Link>
-                  ))}
+                    {userNavItems.map((item) => (
+                      <Link
+                        key={item.to}
+                        to={item.to}
+                        className="block py-2 px-4 rounded-lg text-gray-700 hover:bg-gray-100 transition"
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  {loadingProjects && <p className="px-4 text-gray-500">Loading projects...</p>}
+                  {projectsError && <p className="px-4 text-red-500">{projectsError}</p>}
+                  {!loadingProjects && !projectsError && (
+                    <SidebarProjects
+                      projects={projectsWithPermissions}
+                      canCreate={canCreateProject}
+                      onCreate={handleCreateProject}
+                      onUpdate={handleUpdateProject}
+                      onDelete={handleDeleteProject}
+                    />
+                  )}
                 </>
               )}
             </div>
@@ -133,6 +236,17 @@ const DashboardLayout: React.FC = () => {
         </div>
       </main>
       <SidebarModal isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} user={user} />
+      <CreateProjectModal
+        isOpen={isCreateModalOpen}
+        onClose={handleCreateModalClose}
+        onSubmit={handleCreateModalSubmit}
+      />
+      <UpdateProjectModal
+        isOpen={isUpdateModalOpen}
+        onClose={handleUpdateModalClose}
+        onUpdate={handleUpdateModalSubmit}
+        initialData={editingProject ?? { title: '', description: '' }}
+      />
     </div>
   );
 };
