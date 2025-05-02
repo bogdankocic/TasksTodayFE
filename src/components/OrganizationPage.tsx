@@ -1,5 +1,6 @@
 import React, { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import apiService from '../api/apiService';
+import ProfilePhotoInput from './ProfilePhotoInput';
 
 interface OrganizationData {
   id: number;
@@ -11,10 +12,15 @@ interface OrganizationData {
 const OrganizationPage: React.FC = () => {
   const [organization, setOrganization] = useState<OrganizationData | null>(null);
   const [currentUser, setCurrentUser] = useState<any | null>(null);
-  const [formData, setFormData] = useState<{ name: string; description: string }>({
+  const [formData, setFormData] = useState<{ name: string; email: string }>({
     name: '',
-    description: '',
+    email: '',
   });
+
+  // Add state for profile photo and file
+  const [profilePhoto, setProfilePhoto] = useState<string>('');
+  const [file, setFile] = useState<File | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,8 +40,9 @@ const OrganizationPage: React.FC = () => {
         setOrganization(orgData);
         setFormData({
           name: orgData.name || '',
-          description: orgData.description || '',
+          email: orgData.email || '',
         });
+        setProfilePhoto(orgData.profile_photo || '');
       } catch {
         setError('Failed to load organization data.');
       } finally {
@@ -57,7 +64,10 @@ const OrganizationPage: React.FC = () => {
     try {
       const data = new FormData();
       data.append('name', formData.name);
-      data.append('description', formData.description);
+      data.append('email', formData.email);
+      if (file) {
+        data.append('profile_photo', file);
+      }
       await apiService.updateOrganization(organization.id, data);
       setOrganization({ ...organization, ...formData });
     } catch {
@@ -87,8 +97,21 @@ const OrganizationPage: React.FC = () => {
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-3xl font-semibold text-gray-900 mb-6">Organization Details</h1>
+      <h2 className="text-2xl font-semibold mb-4 text-center">Organization Details</h2>
       <form onSubmit={handleSubmit} className="space-y-6">
+        <ProfilePhotoInput
+          profilePhoto={profilePhoto}
+          userProfilePhoto={organization?.profile_photo}
+          fileInputRef={fileInputRef}
+          handleFileSelect={() => fileInputRef.current?.click()}
+          onFileChange={(e) => {
+            if (e.target.files && e.target.files[0]) {
+              const selectedFile = e.target.files[0];
+              setFile(selectedFile);
+              setProfilePhoto(URL.createObjectURL(selectedFile));
+            }
+          }}
+        />
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
             Name
@@ -101,23 +124,24 @@ const OrganizationPage: React.FC = () => {
             onChange={handleChange}
             disabled={!canUpdate || saving}
             required
-            className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+            className={`mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 h-12 px-3 ${
               !canUpdate ? 'bg-gray-100 cursor-not-allowed' : ''
             }`}
           />
         </div>
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-            Description
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            Email
           </label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
+          <input
+            id="email"
+            name="email"
+            type="email"
+            value={formData.email}
             onChange={handleChange}
             disabled={!canUpdate || saving}
-            rows={4}
-            className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+            required
+            className={`mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 h-12 px-3 ${
               !canUpdate ? 'bg-gray-100 cursor-not-allowed' : ''
             }`}
           />
@@ -126,7 +150,7 @@ const OrganizationPage: React.FC = () => {
           <button
             type="submit"
             disabled={saving}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition disabled:opacity-50"
+            className="bg-black text-white px-6 py-3 rounded hover:bg-gray-900 transition disabled:opacity-50"
           >
             {saving ? 'Saving...' : 'Save Changes'}
           </button>
