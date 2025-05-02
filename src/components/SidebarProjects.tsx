@@ -24,7 +24,7 @@ const SidebarProjects: React.FC<SidebarProjectsProps> = ({
 }) => {
   return (
     <div className="mb-6 pt-6">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-gray-500 uppercase px-4 pl-0">My Projects</h3>
         {canCreate && (
           <button
@@ -45,22 +45,22 @@ const SidebarProjects: React.FC<SidebarProjectsProps> = ({
             <span className="text-gray-700">{project.title}</span>
             <div className="flex space-x-2">
               {project.canUpdate && (
-                <button
+                <img
+                  src="/images/update.png"
+                  alt="Update"
                   onClick={() => onUpdate(project.id)}
-                  className="text-blue-500 hover:text-blue-700 focus:outline-none"
+                  className="cursor-pointer h-5 w-5 hover:opacity-75"
                   aria-label={`Update project ${project.title}`}
-                >
-                  Update
-                </button>
+                />
               )}
               {project.canDelete && (
-                <button
+                <img
+                  src="/images/bin.png"
+                  alt="Delete"
                   onClick={() => onDelete(project.id)}
-                  className="text-red-500 hover:text-red-700 focus:outline-none"
+                  className="cursor-pointer h-5 w-5 hover:opacity-75"
                   aria-label={`Delete project ${project.title}`}
-                >
-                  Delete
-                </button>
+                />
               )}
             </div>
           </li>

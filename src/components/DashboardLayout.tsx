@@ -120,7 +120,7 @@ const DashboardLayout: React.FC = () => {
       <aside className={`w-64 bg-white shadow-lg border border-gray-200 rounded-r-lg hidden lg:block`}>
         <nav className="mt-12 flex flex-col space-y-2 px-4">
           <div className="mb-4">
-            <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">
+            <h3 className="text-sm font-semibold text-gray-500 uppercase mb-4">
               {user.role_id === 1 ? 'Administration' : 'My Workspace'}
             </h3>
             <div className="space-y-1">
