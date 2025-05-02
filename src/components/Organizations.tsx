@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import apiService from '../api/apiService';
+import ConfirmModal from './ConfirmModal';
 
 interface Organization {
   id: number;
@@ -11,6 +12,10 @@ const Organizations: React.FC = () => {
   const [newOrgName, setNewOrgName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // New state for confirm modal
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [orgIdToDelete, setOrgIdToDelete] = useState<number | null>(null);
 
   const fetchOrganizations = async () => {
     setLoading(true);
@@ -30,16 +35,27 @@ const Organizations: React.FC = () => {
   }, []);
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('Are you sure you want to delete this organization?')) {
-      return;
-    }
+    setOrgIdToDelete(id);
+    setIsConfirmModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (orgIdToDelete === null) return;
     setError(null);
     try {
-      await apiService.deleteOrganization(id);
-      setOrganizations((prev) => prev.filter((org) => org.id !== id));
+      await apiService.deleteOrganization(orgIdToDelete);
+      setOrganizations((prev) => prev.filter((org) => org.id !== orgIdToDelete));
     } catch (err) {
       setError('Failed to delete organization.');
+    } finally {
+      setIsConfirmModalOpen(false);
+      setOrgIdToDelete(null);
     }
+  };
+
+  const cancelDelete = () => {
+    setIsConfirmModalOpen(false);
+    setOrgIdToDelete(null);
   };
 
   const handleCreate = async () => {
@@ -107,6 +123,12 @@ const Organizations: React.FC = () => {
           )}
         </ul>
       )}
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        message="Are you sure you want to delete this organization?"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
     </div>
   );
 };

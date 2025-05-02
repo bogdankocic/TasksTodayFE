@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import apiService from '../api/apiService';
+import ConfirmModal from './ConfirmModal';
 
 interface User {
   id: number | string;
@@ -25,6 +26,10 @@ const Users: React.FC = () => {
   const [inviteTeamRole, setInviteTeamRole] = useState('');
   const [inviteOrganizationId, setInviteOrganizationId] = useState<string | number | null>(null);
   const [organizations, setOrganizations] = useState<{ id: number | string; name: string }[]>([]);
+
+  // New state for confirm modal
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [userIdToDelete, setUserIdToDelete] = useState<number | string | null>(null);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -110,15 +115,27 @@ const Users: React.FC = () => {
   };
 
   const handleDelete = async (id: number | string) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      try {
-        await apiService.deleteUser(id);
-        alert('User deleted');
-        fetchUsers();
-      } catch {
-        alert('Failed to delete user');
-      }
+    setUserIdToDelete(id);
+    setIsConfirmModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (userIdToDelete === null) return;
+    try {
+      await apiService.deleteUser(userIdToDelete);
+      alert('User deleted');
+      fetchUsers();
+    } catch {
+      alert('Failed to delete user');
+    } finally {
+      setIsConfirmModalOpen(false);
+      setUserIdToDelete(null);
     }
+  };
+
+  const cancelDelete = () => {
+    setIsConfirmModalOpen(false);
+    setUserIdToDelete(null);
   };
 
   if (loading) {
@@ -272,6 +289,12 @@ const Users: React.FC = () => {
           </div>
         </div>
       )}
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        message="Are you sure you want to delete this user?"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
     </div>
   );
 };
