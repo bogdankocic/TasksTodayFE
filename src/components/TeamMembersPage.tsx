@@ -103,12 +103,16 @@ const TeamMembersPage: React.FC = () => {
         {members.map((member) => (
           <li key={member.id} className="flex items-center justify-between border rounded p-3">
             <div className="flex items-center space-x-3">
-              <p className="font-medium">{member.first_name} {member.last_name}</p>
               {member.is_verified ? (
-                <span className="h-3 w-3 rounded-full bg-green-500 inline-block" title="Verified"></span>
+                <span className="h-3 w-3 rounded-full bg-green-500 inline-block order-first" title="Verified"></span>
               ) : (
-                <span className="h-3 w-3 rounded-full bg-red-500 inline-block" title="Not Verified"></span>
+                <span className="h-3 w-3 rounded-full bg-red-500 inline-block order-first" title="Not Verified"></span>
               )}
+              <p className="font-medium flex-1 text-center">
+                {member.first_name || member.last_name
+                  ? `${member.first_name} ${member.last_name}`
+                  : member.email}
+              </p>
             </div>
             <div className="flex space-x-3">
               <img
