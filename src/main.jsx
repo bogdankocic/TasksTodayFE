@@ -14,6 +14,7 @@ import UserActivate from './components/UserActivate'
 import { AuthProvider, useAuth } from './components/AuthContext'
 import React from 'react'
 import TeamMembersPage from './components/TeamMembersPage'
+import TasksPage from './components/TasksPage'
 
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -49,6 +50,7 @@ const AppRoutes = () => {
           path="teams/:teamId/members"
           element={<TeamMembersPage />}
         />
+        <Route path="tasks" element={<TasksPage />} />
       </Route>
     </Routes>
   );

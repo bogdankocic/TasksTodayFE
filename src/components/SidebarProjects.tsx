@@ -42,7 +42,13 @@ const SidebarProjects: React.FC<SidebarProjectsProps> = ({
             key={project.id}
             className="flex items-center justify-between px-4 py-1 hover:bg-gray-100 rounded"
           >
-            <span className="text-gray-700">{project.title}</span>
+            <a
+              href={`/tasks?project_id=${project.id}`}
+              className="text-blue-600 hover:underline"
+              aria-label={`View tasks for project ${project.title}`}
+            >
+              {project.title}
+            </a>
             <div className="flex space-x-2">
               {project.canUpdate && (
                 <img

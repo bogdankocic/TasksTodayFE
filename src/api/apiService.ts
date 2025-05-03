@@ -96,6 +96,9 @@ class ApiService {
   getProject = (id: string | number) =>
     this.axiosInstance.get(`/projects/${id}`);
 
+  getProjectTeams = (projectId: string | number) =>
+    this.axiosInstance.get(`/projects/${projectId}/teams`);
+
   updateProject = (id: string | number, data: any) =>
     this.axiosInstance.post(`/projects/${id}`, data);
 
@@ -134,7 +137,19 @@ class ApiService {
   createTask = (data: any) =>
     this.axiosInstance.post('/tasks', data);
 
-  getTasks = () => this.axiosInstance.get('/tasks');
+  getTasks = (filters?: Record<string, any>) => {
+    let url = '/tasks';
+    if (filters) {
+      const params = new URLSearchParams();
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, String(value));
+        }
+      });
+      url += `?${params.toString()}`;
+    }
+    return this.axiosInstance.get(url);
+  };
 
   getTask = (id: string | number) =>
     this.axiosInstance.get(`/tasks/${id}`);
