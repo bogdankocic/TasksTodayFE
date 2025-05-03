@@ -34,7 +34,19 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
 
   // New state for notes section
   const [notesOpen, setNotesOpen] = useState(false);
-  const [notes, setNotes] = useState<{ id: number; task_id: number; text: string; created_at: string }[]>([]);
+  interface Note {
+    id: number;
+    task_id: number;
+    text: string;
+    created_at: string;
+    user?: {
+      first_name?: string | null;
+      last_name?: string | null;
+      email: string;
+    };
+  }
+
+  const [notes, setNotes] = useState<Note[]>([]);
   const [loadingNotes, setLoadingNotes] = useState(false);
   const [notesError, setNotesError] = useState<string | null>(null);
 
@@ -360,12 +372,21 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
             {notesError && <p className="text-red-600">{notesError}</p>}
             {!loadingNotes && !notesError && notes.length === 0 && <p>No notes available.</p>}
             <ul className="space-y-3">
-              {notes.map((note) => (
-                <li key={note.id} className="p-2 bg-white rounded shadow-sm border border-gray-200">
+              {notes.map((note) => {
+                const user = note.user;
+                const displayName = user
+                  ? (user.first_name && user.last_name
+                      ? `${user.first_name} ${user.last_name}`
+                      : user.email)
+                  : 'Unknown user';
+                return (
+                  <li key={note.id} className="p-2 bg-white rounded shadow-sm border border-gray-200">
                   <p className="text-gray-800">{note.text}</p>
-                  <p className="text-xs text-gray-500 mt-1">{new Date(note.created_at).toLocaleString()}</p>
-                </li>
-              ))}
+                  <p className="text-xs font-semibold mt-1"><strong>{displayName}</strong></p>
+                  <p className="text-xs text-gray-500">{new Date(note.created_at).toLocaleString()}</p>
+                  </li>
+                );
+              })}
             </ul>
             <div className="mt-4">
               <textarea
@@ -378,7 +399,7 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
               />
               <button
                 type="button"
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                 onClick={handleAddNote}
                 disabled={creatingNote || newNoteText.trim() === ''}
               >
