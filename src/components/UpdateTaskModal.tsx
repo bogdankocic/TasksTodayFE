@@ -38,6 +38,11 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
   const [loadingNotes, setLoadingNotes] = useState(false);
   const [notesError, setNotesError] = useState<string | null>(null);
 
+  // New state for creating note
+  const [newNoteText, setNewNoteText] = useState('');
+  const [creatingNote, setCreatingNote] = useState(false);
+  const [createNoteError, setCreateNoteError] = useState<string | null>(null);
+
   useEffect(() => {
     if (initialData) {
       setName(initialData.name);
@@ -53,7 +58,6 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
 
   useEffect(() => {
     if ((performerDropdownOpen || contributorDropdownOpen) && initialData?.team_id) {
-      console.log('Fetching team members for team_id:', initialData.team_id);
       fetchTeamMembers(initialData.team_id);
     }
   }, [performerDropdownOpen, contributorDropdownOpen, initialData]);
@@ -68,7 +72,7 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
           setNotes(response.data);
           setLoadingNotes(false);
         })
-        .catch(error => {
+        .catch(() => {
           setNotesError('Failed to load notes');
           setLoadingNotes(false);
         });
@@ -83,8 +87,8 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
       } else {
         setTeamMembers([]);
       }
-    } catch (error) {
-      console.error('Failed to fetch team members', error);
+    } catch {
+      setTeamMembers([]);
     }
   };
 
@@ -94,8 +98,8 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
       await apiService.assignPerformer(initialData.id, user.id);
       setSelectedPerformer(user);
       setPerformerDropdownOpen(false);
-    } catch (error) {
-      console.error('Failed to assign performer', error);
+    } catch {
+      // handle error silently
     }
   };
 
@@ -105,8 +109,8 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
       await apiService.assignContributor(initialData.id, user.id);
       setSelectedContributor(user);
       setContributorDropdownOpen(false);
-    } catch (error) {
-      console.error('Failed to assign contributor', error);
+    } catch {
+      // handle error silently
     }
   };
 
@@ -119,6 +123,23 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
     await onUpdate({ id: initialData.id, name, description });
     setSubmitting(false);
     onClose();
+  };
+
+  const handleAddNote = async () => {
+    if (!initialData || !newNoteText.trim()) return;
+    setCreatingNote(true);
+    setCreateNoteError(null);
+    try {
+      await apiService.createTaskNote(initialData.id, { text: newNoteText.trim() });
+      setNewNoteText('');
+      // Refresh notes
+      const response = await apiService.getTaskNotes(initialData.id);
+      setNotes(response.data);
+    } catch {
+      setCreateNoteError('Failed to add note');
+    } finally {
+      setCreatingNote(false);
+    }
   };
 
   return (
@@ -346,6 +367,25 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
                 </li>
               ))}
             </ul>
+            <div className="mt-4">
+              <textarea
+                className="w-full border border-gray-300 rounded px-3 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows={3}
+                placeholder="Add a new note..."
+                value={newNoteText}
+                onChange={(e) => setNewNoteText(e.target.value)}
+                disabled={creatingNote}
+              />
+              <button
+                type="button"
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                onClick={handleAddNote}
+                disabled={creatingNote || newNoteText.trim() === ''}
+              >
+                {creatingNote ? 'Adding...' : 'Add Note'}
+              </button>
+              {createNoteError && <p className="text-red-600 mt-2">{createNoteError}</p>}
+            </div>
           </div>
         )}
       </div>

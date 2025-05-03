@@ -25,9 +25,20 @@ interface Task {
   updated_at: string;
 }
 
-const TaskCard: React.FC<{ task: Task; onEdit: (task: Task) => void; onDelete: (taskId: number) => void }> = ({ task, onEdit, onDelete }) => {
+import { useAuth } from './AuthContext';
+
+const TaskCard: React.FC<{
+  task: Task;
+  onEdit: (task: Task) => void;
+  onDelete: (taskId: number) => void;
+  canActivateTask: boolean;
+  canCompleteTask: boolean;
+  onActivate: (taskId: number) => Promise<void>;
+  onComplete: (taskId: number) => Promise<void>;
+}> = ({ task, onEdit, onDelete, canActivateTask, canCompleteTask, onActivate, onComplete }) => {
   const [isVoting, setIsVoting] = useState(false);
   const [selectedVote, setSelectedVote] = useState<number | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleVoteClick = () => {
     setIsVoting(true);
@@ -46,6 +57,28 @@ const TaskCard: React.FC<{ task: Task; onEdit: (task: Task) => void; onDelete: (
       // Optionally refresh tasks or update UI here
     } catch (error) {
       console.error('Failed to submit vote', error);
+    }
+  };
+
+  const handleActivateClick = async () => {
+    setIsProcessing(true);
+    try {
+      await onActivate(task.id);
+    } catch (error) {
+      console.error('Failed to activate task', error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleCompleteClick = async () => {
+    setIsProcessing(true);
+    try {
+      await onComplete(task.id);
+    } catch (error) {
+      console.error('Failed to complete task', error);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -107,17 +140,35 @@ const TaskCard: React.FC<{ task: Task; onEdit: (task: Task) => void; onDelete: (
           ) : null}
         </div>
       </div>
-          <div className="text-xs text-gray-400 relative">
-            Created: {new Date(task.created_at).toLocaleDateString()}
-            <div className="absolute bottom-0 right-0 w-8 h-8 rounded-full overflow-hidden border border-gray-300">
-              {/* Performer profile photo */}
-              <img
-                src={task.performer?.profile_photo || '/images/placeholder.png'}
-                alt="Performer"
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
+      {(task.status === 'todo' && canActivateTask) && (
+        <button
+          onClick={handleActivateClick}
+          disabled={isProcessing}
+          className="mt-2 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+        >
+          {isProcessing ? 'Activating...' : 'Activate'}
+        </button>
+      )}
+      {(task.status === 'inprogress' && canCompleteTask) && (
+        <button
+          onClick={handleCompleteClick}
+          disabled={isProcessing}
+          className="mt-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          {isProcessing ? 'Completing...' : 'Complete'}
+        </button>
+      )}
+      <div className="text-xs text-gray-400 relative mt-2">
+        Created: {new Date(task.created_at).toLocaleDateString()}
+        <div className="absolute bottom-0 right-0 w-8 h-8 rounded-full overflow-hidden border border-gray-300">
+          {/* Performer profile photo */}
+          <img
+            src={task.performer?.profile_photo || '/images/placeholder.png'}
+            alt="Performer"
+            className="w-full h-full object-cover"
+          />
+        </div>
+      </div>
     </div>
   );
 };
@@ -150,6 +201,8 @@ const TasksPage: React.FC = () => {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [teams, setTeams] = useState<{ id: number; name: string }[]>([]);
   const [taskToUpdate, setTaskToUpdate] = useState<Task | null>(null);
+
+  const { user } = useAuth();
 
   // Parse query params to get project_id
   const queryParams = new URLSearchParams(location.search);
@@ -224,6 +277,24 @@ const TasksPage: React.FC = () => {
   const inProgressTasks = tasks.filter((t) => t.status === 'inprogress');
   const completedTasks = tasks.filter((t) => t.status === 'completed');
 
+  const handleActivateTask = async (taskId: number) => {
+    try {
+      await apiService.activateTask(taskId);
+      fetchTasks();
+    } catch (error) {
+      console.error('Failed to activate task', error);
+    }
+  };
+
+  const handleCompleteTask = async (taskId: number) => {
+    try {
+      await apiService.completeTask(taskId);
+      fetchTasks();
+    } catch (error) {
+      console.error('Failed to complete task', error);
+    }
+  };
+
   if (loading) {
     return <div className="p-6 text-center text-gray-500">Loading tasks...</div>;
   }
@@ -271,7 +342,16 @@ const TasksPage: React.FC = () => {
           {todoTasks.length > 0 ? (
             <>
               {todoTasks.map((task) => (
-                <TaskCard key={task.id} task={task} onEdit={handleEditClick} onDelete={handleDeleteClick} />
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onEdit={handleEditClick}
+                  onDelete={handleDeleteClick}
+                  canActivateTask={true}
+                  canCompleteTask={true}
+                  onActivate={handleActivateTask}
+                  onComplete={handleCompleteTask}
+                />
               ))}
               <EmptyTaskCard onClick={() => setIsCreateModalOpen(true)} />
             </>
@@ -284,11 +364,33 @@ const TasksPage: React.FC = () => {
         </section>
         <section>
           <h3 className="text-xl font-semibold mb-4">In Progress</h3>
-          {inProgressTasks.length > 0 ? inProgressTasks.map((task) => <TaskCard key={task.id} task={task} onEdit={handleEditClick} onDelete={handleDeleteClick} />) : <p className="text-gray-500">No tasks in progress.</p>}
+          {inProgressTasks.length > 0 ? inProgressTasks.map((task) => (
+            <TaskCard
+              key={task.id}
+              task={task}
+              onEdit={handleEditClick}
+              onDelete={handleDeleteClick}
+              canActivateTask={true}
+              canCompleteTask={true}
+              onActivate={handleActivateTask}
+              onComplete={handleCompleteTask}
+            />
+          )) : <p className="text-gray-500">No tasks in progress.</p>}
         </section>
         <section>
           <h3 className="text-xl font-semibold mb-4">Completed</h3>
-          {completedTasks.length > 0 ? completedTasks.map((task) => <TaskCard key={task.id} task={task} onEdit={handleEditClick} onDelete={handleDeleteClick} />) : <p className="text-gray-500">No completed tasks.</p>}
+          {completedTasks.length > 0 ? completedTasks.map((task) => (
+            <TaskCard
+              key={task.id}
+              task={task}
+              onEdit={handleEditClick}
+              onDelete={handleDeleteClick}
+              canActivateTask={true}
+              canCompleteTask={true}
+              onActivate={handleActivateTask}
+              onComplete={handleCompleteTask}
+            />
+          )) : <p className="text-gray-500">No completed tasks.</p>}
         </section>
       </div>
       <CreateTaskModal
