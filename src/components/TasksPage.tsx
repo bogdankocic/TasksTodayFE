@@ -4,7 +4,9 @@ import apiService from '../api/apiService';
 import CreateTaskModal from './CreateTaskModal';
 import UpdateTaskModal from './UpdateTaskModal';
 
-interface Performer {
+interface User {
+  id: number;
+  name: string;
   profile_photo: string | null;
 }
 
@@ -15,7 +17,10 @@ interface Task {
   status: 'todo' | 'inprogress' | 'completed';
   complexity: number;
   user_voted?: boolean;
-  performer?: Performer;
+  performer?: User;
+  contributor?: User;
+  // Ensure contributor is a single user, not an array
+  team_id?: number;
   created_at: string;
   updated_at: string;
 }
@@ -228,7 +233,11 @@ const TasksPage: React.FC = () => {
   }
 
   const handleEditClick = (task: Task) => {
-    setTaskToUpdate(task);
+    const teamId = task.team_id ?? (teams.length > 0 ? teams[0].id : undefined);
+    setTaskToUpdate({
+      ...task,
+      team_id: teamId,
+    });
     setIsUpdateModalOpen(true);
   };
 
@@ -292,7 +301,7 @@ const TasksPage: React.FC = () => {
         isOpen={isUpdateModalOpen}
         onClose={() => setIsUpdateModalOpen(false)}
         onUpdate={handleUpdateTask}
-        initialData={taskToUpdate ? { id: taskToUpdate.id, name: taskToUpdate.name, description: taskToUpdate.description } : null}
+        initialData={taskToUpdate}
       />
     </div>
   );
