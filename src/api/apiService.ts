@@ -154,6 +154,12 @@ class ApiService {
   getTask = (id: string | number) =>
     this.axiosInstance.get(`/tasks/${id}`);
 
+  updateTask = (id: string | number, data: any) =>
+    this.axiosInstance.post(`/tasks/${id}`, data);
+
+  deleteTask = (id: string | number) =>
+    this.axiosInstance.delete(`/tasks/${id}`);
+
   assignPerformer = (taskId: string | number, performerId: string | number) =>
     this.axiosInstance.post(`/tasks/${taskId}/assign-performer/${performerId}`);
 
@@ -166,8 +172,8 @@ class ApiService {
   assignContributor = (taskId: string | number, contributorId: string | number) =>
     this.axiosInstance.post(`/tasks/${taskId}/assign-contributor/${contributorId}`);
 
-  voteTask = (taskId: string | number) =>
-    this.axiosInstance.post(`/tasks/${taskId}/vote`);
+  voteTask = (taskId: string | number, data: any) =>
+    this.axiosInstance.post(`/tasks/${taskId}/vote`, data);
 
   // Notifications
   getNotifications = () => this.axiosInstance.get('/notifications');
