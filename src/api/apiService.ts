@@ -109,6 +109,9 @@ class ApiService {
   createTeam = (data: any) =>
     this.axiosInstance.post('/teams', data);
 
+  updateTeamName = (id: string | number, data: any) =>
+    this.axiosInstance.post(`/teams/${id}`, data);
+
   deleteTeam = (id: string | number) =>
     this.axiosInstance.delete(`/teams/${id}`);
 

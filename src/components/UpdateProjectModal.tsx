@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import apiService from '../api/apiService';
 
 interface Team {
   id: number;
@@ -29,12 +30,16 @@ const UpdateProjectModal: React.FC<UpdateProjectModalProps> = ({
   const [title, setTitle] = React.useState(initialData.title);
   const [description, setDescription] = React.useState(initialData.description);
   const [teams, setTeams] = React.useState(initialData.teams || []);
+  const [newTeamTitle, setNewTeamTitle] = React.useState('');
+  const [isCreatingTeam, setIsCreatingTeam] = React.useState(false);
 
   React.useEffect(() => {
     if (isOpen) {
       setTitle(initialData.title);
       setDescription(initialData.description);
       setTeams(initialData.teams || []);
+      setNewTeamTitle('');
+      setIsCreatingTeam(false);
     }
   }, [initialData, isOpen]);
 
@@ -53,17 +58,51 @@ const UpdateProjectModal: React.FC<UpdateProjectModalProps> = ({
     alert(`Remove member from team ${teamId}`);
   };
 
-  const handleDeleteTeam = (teamId: number) => {
-    alert(`Delete team ${teamId}`);
+  const handleDeleteTeam = async (teamId: number) => {
+    try {
+      await apiService.deleteTeam(teamId);
+      setTeams((prevTeams) => prevTeams.filter((t) => t.id !== teamId));
+    } catch (error) {
+      console.error('Failed to delete team:', error);
+      // Optionally show error to user
+    }
   };
 
-  const handleCreateTeam = () => {
-    alert('Create new team');
+  const handleCreateTeamClick = () => {
+    setIsCreatingTeam(true);
   };
 
-  const handleUpdateTeamName = (teamId: number, newTitle: string) => {
-    alert(`Update team ${teamId} name to ${newTitle}`);
-    // Here you would call the API endpoint to update the team name
+  const handleCreateTeamCancel = () => {
+    setIsCreatingTeam(false);
+    setNewTeamTitle('');
+  };
+
+  const handleCreateTeamSubmit = async () => {
+    if (!newTeamTitle.trim()) return;
+    try {
+      const response = await apiService.createTeam({
+        title: newTeamTitle.trim(),
+        project_id: initialData.teams.length > 0 ? initialData.teams[0].project_id : undefined,
+      });
+      const createdTeam = response.data;
+      setTeams((prev) => [...prev, createdTeam]);
+      setNewTeamTitle('');
+      setIsCreatingTeam(false);
+    } catch (error) {
+      console.error('Failed to create team:', error);
+    }
+  };
+
+  const handleUpdateTeamName = async (teamId: number, newTitle: string) => {
+    if (!newTitle.trim()) return;
+    try {
+      await apiService.updateTeamName(teamId, { title: newTitle.trim() });
+      setTeams((prevTeams) =>
+        prevTeams.map((t) => (t.id === teamId ? { ...t, title: newTitle.trim() } : t))
+      );
+    } catch (error) {
+      console.error('Failed to update team name:', error);
+    }
   };
 
   return (
@@ -98,6 +137,21 @@ const UpdateProjectModal: React.FC<UpdateProjectModalProps> = ({
           </div>
 
           <div>
+            <div className="flex justify-end space-x-2 mb-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Update
+              </button>
+            </div>
             <h3 className="text-lg font-semibold mb-2">Teams</h3>
             <div className="space-y-2">
               {teams.map((team) => (
@@ -130,24 +184,20 @@ const UpdateProjectModal: React.FC<UpdateProjectModalProps> = ({
                   </div>
                   <div className="flex space-x-2">
                     <div
-                      onClick={() => handleAddMember(team.id)}
-                      className={`cursor-pointer p-1 rounded hover:bg-gray-100 ${!userPermissions.can_add_member ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      title="Add Member"
+                      className={`cursor-pointer p-1 rounded hover:bg-gray-100 ${(!userPermissions.can_add_member && !userPermissions.can_delete_team) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      title="Users"
                       role="button"
                       tabIndex={0}
-                      onKeyPress={(e) => { if (e.key === 'Enter') handleAddMember(team.id); }}
+                      onClick={() => {
+                        handleAddMember(team.id);
+                        handleRemoveMember(team.id);
+                      }}
+                      onKeyPress={(e) => { if (e.key === 'Enter') {
+                        handleAddMember(team.id);
+                        handleRemoveMember(team.id);
+                      }}}
                     >
-                      <img src="/images/add-user.png" alt="Add Member" className="h-5 w-5" />
-                    </div>
-                    <div
-                      onClick={() => handleRemoveMember(team.id)}
-                      className={`cursor-pointer p-1 rounded hover:bg-gray-100 ${!userPermissions.can_delete_team ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      title="Remove Member"
-                      role="button"
-                      tabIndex={0}
-                      onKeyPress={(e) => { if (e.key === 'Enter') handleRemoveMember(team.id); }}
-                    >
-                      <img src="/images/remove-user.png" alt="Remove Member" className="h-5 w-5" />
+                      <img src="/images/users.png" alt="Users" className="h-5 w-5" />
                     </div>
                     <div
                       onClick={() => handleDeleteTeam(team.id)}
@@ -162,26 +212,43 @@ const UpdateProjectModal: React.FC<UpdateProjectModalProps> = ({
                   </div>
                 </div>
               ))}
-              <div className="border rounded p-3 flex items-center justify-center cursor-pointer hover:bg-gray-100" onClick={handleCreateTeam}>
-                <span className="text-2xl font-bold">+</span>
-              </div>
+              {isCreatingTeam ? (
+                <div className="border rounded p-3 flex flex-col space-y-2">
+                  <div className="flex flex-col space-y-1">
+                    <input
+                      type="text"
+                      value={newTeamTitle}
+                      onChange={(e) => setNewTeamTitle(e.target.value)}
+                      placeholder="New team title"
+                      className="border border-gray-300 rounded p-1 text-sm flex-1 mb-6"
+                    />
+                    <div className="flex space-x-2">
+                      <button
+                        type="button"
+                        onClick={handleCreateTeamCancel}
+                        className="px-2 py-1 bg-gray-300 rounded hover:bg-gray-400 text-sm"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCreateTeamSubmit}
+                        className="px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+                      >
+                        Create
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className="border rounded p-3 flex items-center justify-center cursor-pointer hover:bg-gray-100"
+                  onClick={handleCreateTeamClick}
+                >
+                  <span className="text-2xl font-bold">+</span>
+                </div>
+              )}
             </div>
-          </div>
-
-          <div className="flex justify-end space-x-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Update
-            </button>
           </div>
         </form>
       </div>
