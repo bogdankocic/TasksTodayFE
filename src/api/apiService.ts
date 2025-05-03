@@ -99,6 +99,9 @@ class ApiService {
   updateProject = (id: string | number, data: any) =>
     this.axiosInstance.post(`/projects/${id}`, data);
 
+  getProjectMembers = (projectId: string | number) =>
+    this.axiosInstance.get(`/projects/${projectId}/members`);
+
   finishProject = (id: string | number) =>
     this.axiosInstance.post(`/projects/${id}/finish`);
 
@@ -117,6 +120,9 @@ class ApiService {
 
   getTeam = (id: string | number) =>
     this.axiosInstance.get(`/teams/${id}`);
+
+  getTeamMembers = (teamId: string | number) =>
+    this.axiosInstance.get(`/teams/${teamId}/members`);
 
   addTeamMember = (teamId: string | number, memberId: string | number) =>
     this.axiosInstance.post(`/teams/${teamId}/members/${memberId}`);

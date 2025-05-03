@@ -5,6 +5,7 @@ import SidebarModal from './SidebarModal';
 import SidebarProjects from './SidebarProjects';
 import CreateProjectModal from './CreateProjectModal';
 import UpdateProjectModal from './UpdateProjectModal';
+import TeamMembersPage from './TeamMembersPage';
 import apiService from '../api/apiService';
 
 const DashboardLayout: React.FC = () => {
@@ -49,7 +50,6 @@ const DashboardLayout: React.FC = () => {
     { to: "/users", label: "Users" }
   ];
 
-  // Adjust permissions based on user.permissions object
   const canCreateProject = user.permissions?.can_create_project ?? false;
 
   const handleCreateProject = () => {

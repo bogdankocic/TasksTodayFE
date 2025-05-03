@@ -13,6 +13,7 @@ import Landing from './components/Landing'
 import UserActivate from './components/UserActivate'
 import { AuthProvider, useAuth } from './components/AuthContext'
 import React from 'react'
+import TeamMembersPage from './components/TeamMembersPage'
 
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -44,6 +45,10 @@ const AppRoutes = () => {
         <Route path="organization" element={<OrganizationPage />} />
         <Route path="users" element={<Users />} />
         <Route path="my-profile" element={<MyProfile />} />
+        <Route
+          path="teams/:teamId/members"
+          element={<TeamMembersPage />}
+        />
       </Route>
     </Routes>
   );

@@ -6,7 +6,6 @@ interface Team {
   title: string;
   project_id: number;
   created_at: string;
-  // Add other team properties as needed
 }
 
 interface UpdateProjectModalProps {
@@ -189,12 +188,11 @@ const UpdateProjectModal: React.FC<UpdateProjectModalProps> = ({
                       role="button"
                       tabIndex={0}
                       onClick={() => {
-                        handleAddMember(team.id);
-                        handleRemoveMember(team.id);
+                        // Redirect to team members page
+                        window.location.href = `/teams/${team.id}/members`;
                       }}
                       onKeyPress={(e) => { if (e.key === 'Enter') {
-                        handleAddMember(team.id);
-                        handleRemoveMember(team.id);
+                        window.location.href = `/teams/${team.id}/members`;
                       }}}
                     >
                       <img src="/images/users.png" alt="Users" className="h-5 w-5" />
