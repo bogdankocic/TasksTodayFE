@@ -187,14 +187,14 @@ class ApiService {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
 
-  deleteFile = (id: string | number) =>
-    this.axiosInstance.delete(`/files/${id}`);
+  deleteFile = (id: string | number, type: string) =>
+    this.axiosInstance.delete('/files', { data: { id, type } });
 
-  downloadTaskFile = (taskId: string | number) =>
-    this.axiosInstance.get(`/files/tasks/download/${taskId}`, { responseType: 'blob' });
+  downloadTaskFile = (fileId: string | number) =>
+    this.axiosInstance.get(`/files/${fileId}/tasks/download`, { responseType: 'blob' });
 
-  downloadProjectFile = (projectId: string | number) =>
-    this.axiosInstance.get(`/files/projects/download/${projectId}`, { responseType: 'blob' });
+  downloadProjectFile = (fileId: string | number) =>
+    this.axiosInstance.get(`/files/${fileId}/projects/download`, { responseType: 'blob' });
 
   getProjectFiles = (projectId: string | number) =>
     this.axiosInstance.get(`/files/projects/${projectId}`);

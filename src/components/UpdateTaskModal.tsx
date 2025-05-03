@@ -7,11 +7,17 @@ interface User {
   profile_photo: string | null;
 }
 
+interface File {
+  id: number;
+  title: string;
+  path: string;
+}
+
 interface UpdateTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpdate: (data: { id: number; name: string; description: string }) => void;
-  initialData: { id: number; name: string; description: string; performer?: User; contributor?: User; team_id?: number } | null;
+  initialData: { id: number; name: string; description: string; performer?: User; contributor?: User; team_id?: number; files?: File[] } | null;
 }
 
 const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUpdate, initialData }) => {
@@ -23,6 +29,8 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
   const [teamMembers, setTeamMembers] = useState<User[]>([]);
   const [selectedPerformer, setSelectedPerformer] = useState<User | null>(null);
   const [selectedContributor, setSelectedContributor] = useState<User | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (initialData) {
@@ -30,6 +38,7 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
       setDescription(initialData.description);
       setSelectedPerformer(initialData.performer || null);
       setSelectedContributor(initialData.contributor || null);
+      setFiles(initialData.files || []);
       if (initialData.team_id) {
         fetchTeamMembers(initialData.team_id);
       }
@@ -180,6 +189,96 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
               )}
             </div>
           </div>
+
+          {/* Files upload and list */}
+          <div className="mb-4">
+            <label className="block mb-2 font-medium">Files</label>
+            <div className="flex items-center space-x-2 mb-2">
+              <button
+                type="button"
+                className="px-2 py-0.5 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 text-sm"
+                onClick={() => document.getElementById('file-upload-input')?.click()}
+                disabled={uploading}
+              >
+                {uploading ? 'Uploading...' : 'Upload File'}
+              </button>
+              <input
+                type="file"
+                id="file-upload-input"
+                className="hidden"
+                onChange={async (e) => {
+                  if (!e.target.files || e.target.files.length === 0 || !initialData) return;
+                  const file = e.target.files[0];
+                  setUploading(true);
+                  try {
+                    const formData = new FormData();
+                    formData.append('type', 'task');
+                    formData.append('id', initialData.id.toString());
+                    formData.append('title', file.name);
+                    formData.append('file', file);
+                    const response = await apiService.uploadFile(formData);
+                    if (response.data) {
+                      setFiles((prev) => [...prev, response.data]);
+                    }
+                  } catch (error) {
+                    console.error('File upload failed', error);
+                  } finally {
+                    setUploading(false);
+                    if (e.target) e.target.value = '';
+                  }
+                }}
+              />
+            </div>
+            <div className="text-sm text-gray-700">
+                {files.length > 0 ? (
+                  files.map((file, index) => (
+                    <span key={file.id} className="inline-flex items-center">
+                      <span
+                        className="inline-flex items-center cursor-pointer hover:underline"
+                        onClick={async () => {
+                          try {
+                            const response = await apiService.downloadTaskFile(file.id);
+                            const blob = new Blob([response.data]);
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = file.title;
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+                            window.URL.revokeObjectURL(url);
+                          } catch (error) {
+                            console.error('Download failed', error);
+                          }
+                        }}
+                      >
+                        <img src="/images/file.png" alt="file icon" className="w-4 h-4 mr-1" />
+                        {file.title}
+                      </span>
+                      <img
+                        src="/images/bin.png"
+                        alt="delete file"
+                        className="w-4 h-4 ml-2 cursor-pointer hover:opacity-70"
+                        onClick={async () => {
+                          if (!initialData) return;
+                          try {
+                            await apiService.deleteFile(file.id, 'task');
+                            // Remove file from state
+                            setFiles((prev) => prev.filter((f) => f.id !== file.id));
+                          } catch (error) {
+                            console.error('Failed to delete file', error);
+                          }
+                        }}
+                      />
+                      {index < files.length - 1 && <span>,&nbsp;</span>}
+                    </span>
+                  ))
+                ) : (
+                  <span>No files uploaded</span>
+                )}
+            </div>
+          </div>
+
           <div className="flex justify-end space-x-2">
             <button
               type="button"
