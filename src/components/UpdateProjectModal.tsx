@@ -49,12 +49,21 @@ const UpdateProjectModal: React.FC<UpdateProjectModalProps> = ({
     alert(`Add member to team ${teamId}`);
   };
 
+  const handleRemoveMember = (teamId: number) => {
+    alert(`Remove member from team ${teamId}`);
+  };
+
   const handleDeleteTeam = (teamId: number) => {
     alert(`Delete team ${teamId}`);
   };
 
   const handleCreateTeam = () => {
     alert('Create new team');
+  };
+
+  const handleUpdateTeamName = (teamId: number, newTitle: string) => {
+    alert(`Update team ${teamId} name to ${newTitle}`);
+    // Here you would call the API endpoint to update the team name
   };
 
   return (
@@ -92,28 +101,64 @@ const UpdateProjectModal: React.FC<UpdateProjectModalProps> = ({
             <h3 className="text-lg font-semibold mb-2">Teams</h3>
             <div className="space-y-2">
               {teams.map((team) => (
-                <div key={team.id} className="border rounded p-3 flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Team: {team.title}</p>
+                <div key={team.id} className="border rounded p-3 flex flex-col space-y-2">
+                  <div className="flex flex-col space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="text"
+                        value={team.title}
+                        onChange={(e) => {
+                          const newTitle = e.target.value;
+                          setTeams((prevTeams) =>
+                            prevTeams.map((t) =>
+                              t.id === team.id ? { ...t, title: newTitle } : t
+                            )
+                          );
+                        }}
+                        className="border border-gray-300 rounded p-1 text-sm flex-1"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleUpdateTeamName(team.id, team.title)}
+                        className="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+                        title="Submit Team Name"
+                      >
+                        Update
+                      </button>
+                    </div>
                     <p className="text-sm text-gray-600">Created at: {new Date(team.created_at).toLocaleString()}</p>
                   </div>
                   <div className="flex space-x-2">
-                    <button
-                      type="button"
+                    <div
                       onClick={() => handleAddMember(team.id)}
-                      disabled={!userPermissions.can_add_member}
-                      className={`px-3 py-1 rounded text-white ${userPermissions.can_add_member ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'}`}
+                      className={`cursor-pointer p-1 rounded hover:bg-gray-100 ${!userPermissions.can_add_member ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      title="Add Member"
+                      role="button"
+                      tabIndex={0}
+                      onKeyPress={(e) => { if (e.key === 'Enter') handleAddMember(team.id); }}
                     >
-                      Add Member
-                    </button>
-                    <button
-                      type="button"
+                      <img src="/images/add-user.png" alt="Add Member" className="h-5 w-5" />
+                    </div>
+                    <div
+                      onClick={() => handleRemoveMember(team.id)}
+                      className={`cursor-pointer p-1 rounded hover:bg-gray-100 ${!userPermissions.can_delete_team ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      title="Remove Member"
+                      role="button"
+                      tabIndex={0}
+                      onKeyPress={(e) => { if (e.key === 'Enter') handleRemoveMember(team.id); }}
+                    >
+                      <img src="/images/remove-user.png" alt="Remove Member" className="h-5 w-5" />
+                    </div>
+                    <div
                       onClick={() => handleDeleteTeam(team.id)}
-                      disabled={!userPermissions.can_delete_team}
-                      className={`px-3 py-1 rounded text-white ${userPermissions.can_delete_team ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-400 cursor-not-allowed'}`}
+                      className={`cursor-pointer p-1 rounded hover:bg-gray-100 ${!userPermissions.can_delete_team ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      title="Delete Team"
+                      role="button"
+                      tabIndex={0}
+                      onKeyPress={(e) => { if (e.key === 'Enter') handleDeleteTeam(team.id); }}
                     >
-                      Delete
-                    </button>
+                      <img src="/images/bin.png" alt="Delete Team" className="h-5 w-5" />
+                    </div>
                   </div>
                 </div>
               ))}
