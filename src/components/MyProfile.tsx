@@ -90,82 +90,110 @@ const MyProfile: React.FC = () => {
     );
   }
 
+  const progressPercent = Math.min(
+    100,
+    (user.karma.current / user.karma.required) * 100
+  );
+
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow">
-      <h2 className="text-2xl font-semibold mb-4 text-center">My Profile</h2>
-      <ProfilePhotoInput
-        profilePhoto={profilePhoto}
-        userProfilePhoto={user.profile_photo}
-        fileInputRef={fileInputRef}
-        handleFileSelect={handleFileSelect}
-        onFileChange={onFileChange}
-      />
-      <form onSubmit={handleSubmit}>
-        <div className="flex flex-col md:flex-row md:space-x-4">
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              First Name
-            </label>
-            <input
-              type="text"
-              value={firstName}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setFirstName(e.target.value)
-              }
-              className="w-full border border-gray-300 rounded px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow flex space-x-8">
+      {/* Left Section - Profile info excluding karma */}
+      <div className="flex-1">
+        <h2 className="text-2xl font-semibold mb-4 text-center">My Profile</h2>
+        <ProfilePhotoInput
+          profilePhoto={profilePhoto}
+          userProfilePhoto={user.profile_photo}
+          fileInputRef={fileInputRef}
+          handleFileSelect={handleFileSelect}
+          onFileChange={onFileChange}
+        />
+        <form onSubmit={handleSubmit}>
+          <div className="flex flex-col md:flex-row md:space-x-4">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                First Name
+              </label>
+              <input
+                type="text"
+                value={firstName}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setFirstName(e.target.value)
+                }
+                className="w-full border border-gray-300 rounded px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Last Name
+              </label>
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setLastName(e.target.value)
+                }
+                className="w-full border border-gray-300 rounded px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
           </div>
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Last Name
-            </label>
-            <input
-              type="text"
-              value={lastName}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setLastName(e.target.value)
-              }
-              className="w-full border border-gray-300 rounded px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+          <div className="space-y-2 mb-6">
+            <div>
+              <span className="font-medium">Email:</span> {user.email}
+            </div>
+            <div>
+              <span className="font-medium">Tasks Completed:</span> {user.tasks_completed_count}
+            </div>
+            <div>
+              <span className="font-medium">Login Strike:</span> {user.login_strike}
+            </div>
+            <div>
+              <span className="font-medium">After Hours Logins:</span> {user.login_after_hours_count}
+            </div>
+            <div>
+              <span className="font-medium">Verified:</span> {user.is_verified ? 'Yes' : 'No'}
+            </div>
+            <div>
+              <span className="font-medium">Role ID:</span> {user.role_id}
+            </div>
+            <div>
+              <span className="font-medium">Team Role:</span> {user.teamrole}
+            </div>
+            <div>
+              <span className="font-medium">Created At:</span> {new Date(user.created_at).toLocaleString()}
+            </div>
+          </div>
+          <button
+            type="submit"
+            disabled={submitLoading}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition disabled:opacity-50"
+          >
+            {submitLoading ? 'Saving...' : 'Save Changes'}
+          </button>
+        </form>
+      </div>
+
+      {/* Right Section - Karma display */}
+      <div className="w-80 p-6 bg-gray-50 rounded-lg shadow flex flex-col items-center space-y-6">
+        <h3 className="text-xl font-semibold mb-2">Karma</h3>
+        <div className="flex items-center space-x-4">
+          <div className="bg-gradient-to-tr from-yellow-400 to-yellow-600 text-yellow-900 font-bold rounded-full w-12 h-12 flex items-center justify-center shadow-lg">
+            {user.karma.currentLevelNumber}
+          </div>
+          <div className="text-lg font-medium">{user.karma.currentLevel}</div>
+        </div>
+        <div className="w-full">
+          <div className="h-4 bg-gray-300 rounded-full overflow-hidden">
+            <div
+              className="h-4 bg-yellow-400 rounded-full transition-all duration-500"
+              style={{ width: `${progressPercent}%` }}
+            ></div>
+          </div>
+          <div className="flex justify-between text-sm mt-1 text-gray-600 font-medium">
+            <span>{user.karma.current} /</span>
+            <span>{user.karma.required}</span>
           </div>
         </div>
-        <div className="space-y-2 mb-6">
-          <div>
-            <span className="font-medium">Email:</span> {user.email}
-          </div>
-          <div>
-            <span className="font-medium">Karma:</span> {user.karma.current} / {user.karma.required}
-          </div>
-          <div>
-            <span className="font-medium">Tasks Completed:</span> {user.tasks_completed_count}
-          </div>
-          <div>
-            <span className="font-medium">Login Strike:</span> {user.login_strike}
-          </div>
-          <div>
-            <span className="font-medium">After Hours Logins:</span> {user.login_after_hours_count}
-          </div>
-          <div>
-            <span className="font-medium">Verified:</span> {user.is_verified ? 'Yes' : 'No'}
-          </div>
-          <div>
-            <span className="font-medium">Role ID:</span> {user.role_id}
-          </div>
-          <div>
-            <span className="font-medium">Team Role:</span> {user.teamrole}
-          </div>
-          <div>
-            <span className="font-medium">Created At:</span> {new Date(user.created_at).toLocaleString()}
-          </div>
-        </div>
-        <button
-          type="submit"
-          disabled={submitLoading}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition disabled:opacity-50"
-        >
-          {submitLoading ? 'Saving...' : 'Save Changes'}
-        </button>
-      </form>
+      </div>
     </div>
   );
 };
