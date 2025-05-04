@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, Outlet, Navigate } from 'react-router-dom';
+import { Link, Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import SidebarModal from './SidebarModal';
 import SidebarProjects from './SidebarProjects';
@@ -33,6 +33,7 @@ const DashboardLayout: React.FC = () => {
   };
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const location = useLocation();
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -259,7 +260,7 @@ const DashboardLayout: React.FC = () => {
   }));
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex bg-gray-50">
       <aside className={`w-64 bg-white shadow-lg border border-gray-200 rounded-r-lg hidden lg:block relative`}>
         <nav className="mt-12 flex flex-col space-y-2 px-4">
           <div className="mb-4">
@@ -396,7 +397,7 @@ const DashboardLayout: React.FC = () => {
         </div>
         )}
       </aside>
-      <main className="flex-1 flex flex-col">
+      <main className="h-screen flex flex-col flex-1 overflow-y-auto justify-center">
         <header className="sticky top-0 z-10 bg-white border-b border-gray-200">
           <div className="flex items-center justify-between h-14 px-4 sm:px-6 lg:px-8">
             <button 
@@ -426,7 +427,7 @@ const DashboardLayout: React.FC = () => {
                   <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-orange-500 ring-2 ring-white shadow-lg" />
                 )}
                     {isNotificationsOpen && (
-                      <div className="absolute right-16 top-14 w-80 max-h-96 overflow-y-auto bg-white rounded-lg shadow-lg border border-gray-200 z-50 p-4">
+                      <div className="absolute right-10 top-8 w-80 max-h-96 overflow-y-auto bg-white rounded-lg shadow-lg border border-gray-200 z-50 p-4">
                         <h3 className="text-lg font-semibold mb-2">Notifications</h3>
                         {notifications.length === 0 ? (
                           <p className="text-gray-500 text-sm">No notifications</p>
@@ -445,7 +446,7 @@ const DashboardLayout: React.FC = () => {
                   </div>
                   <button 
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
-                    className="reset-button-border-and-padding h-12 w-12 rounded-full"
+                    className="reset-button-border-and-padding h-12 w-12 rounded-full mr-0"
                   >
                     {user.profile_photo ? (
                       <img 
@@ -461,7 +462,7 @@ const DashboardLayout: React.FC = () => {
                   </button>
                   
                   {isProfileOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 border border-gray-200">
+                    <div className="absolute right-8 top-8 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 border border-gray-200">
                       <Link to="/my-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left">
                         My Profile
                       </Link>
@@ -486,7 +487,7 @@ const DashboardLayout: React.FC = () => {
           </div>
         </header>
         
-        <div className="overflow-y-auto p-8 bg-white rounded-l-lg shadow-inner">
+        <div className={`overflow-y-hidden p-8 pb-[50%] bg-white rounded-l-lg shadow-inner ${location.pathname === '/tasks' ? '' : 'pt-[15%]'}`}>
           <Outlet />
         </div>
       </main>
