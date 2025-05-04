@@ -99,6 +99,8 @@ const DashboardLayout: React.FC = () => {
 
   // Fetch notifications on mount or when user changes to ensure notifications are loaded
   useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+
     const fetchNotificationsOnMount = async () => {
       if (!user) return;
       try {
@@ -110,7 +112,19 @@ const DashboardLayout: React.FC = () => {
         setNotifications([]);
       }
     };
+
     fetchNotificationsOnMount();
+
+    // Set interval to fetch notifications every 5 seconds
+    if (user) {
+      intervalId = setInterval(fetchNotificationsOnMount, 5000);
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
   }, [user]);
 
   useEffect(() => {
