@@ -59,8 +59,7 @@ const DashboardLayout: React.FC = () => {
       }
       try {
         const response = await apiService.getChatMessagesForProject(selectedProjectId);
-        console.log(response.data)
-        if (response.status === 201) {
+        if (response.status === 200 || response.status === 201) {
           if (Array.isArray(response.data)) {
             setChatMessages(response.data);
           } else if (response.data.data && Array.isArray(response.data.data)) {
@@ -86,10 +85,16 @@ const DashboardLayout: React.FC = () => {
     if (!newMessage.trim() || selectedProjectId === null) return;
     try {
       const response = await apiService.postChatMessageToProject(selectedProjectId, { text: newMessage.trim() });
-      if (response.status === 200) {
-        // Append the full message object returned from API to chatMessages
-        setChatMessages((prev) => [...prev, response.data]);
+      if (response.status === 201) {
         setNewMessage('');
+        const refreshed = await apiService.getChatMessagesForProject(selectedProjectId);
+        if (refreshed.status === 200 || refreshed.status === 201) {
+          if (Array.isArray(refreshed.data)) {
+            setChatMessages(refreshed.data);
+          } else if (refreshed.data.data && Array.isArray(refreshed.data.data)) {
+            setChatMessages(refreshed.data.data);
+          }
+        }
       }
     } catch (error) {
       // Handle error if needed
@@ -242,7 +247,7 @@ const DashboardLayout: React.FC = () => {
         {/* Chat box */}
         {isChatOpen && (
         <div
-          className="absolute bottom-16 left-4 w-72 h-80 bg-white border border-gray-300 rounded-lg shadow-lg z-50 p-4 flex flex-col"
+          className="absolute bottom-16 left-4 w-144 h-160 bg-white border border-gray-300 rounded-lg shadow-lg z-50 p-4 flex flex-col"
           style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)' }}
         >
         <div className="flex justify-between items-center mb-2">
@@ -270,7 +275,6 @@ const DashboardLayout: React.FC = () => {
           </button>
         </div>
         <div className="flex-1 overflow-y-auto border border-gray-200 rounded p-2 mb-2">
-          {console.log(chatMessages)}
           {chatMessages.length === 0 ? (
             <p className="text-gray-500 text-sm">No messages yet.</p>
           ) : (
@@ -305,10 +309,10 @@ const DashboardLayout: React.FC = () => {
           />
           <button
             onClick={handleSendMessage}
-            className="bg-blue-600 text-white px-3 rounded hover:bg-blue-700 transition"
+            className="bg-blue-600 text-white px-3 rounded hover:bg-blue-700 transition flex items-center justify-center"
             aria-label="Send message"
           >
-            Send
+            <img src="/images/arrow.png" alt="Send" className="h-5 w-5" />
           </button>
         </div>
         </div>

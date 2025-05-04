@@ -21,7 +21,6 @@ const TeamMembersPage: React.FC = () => {
   const [projectId, setProjectId] = useState<number | null>(null);
 
   useEffect(() => {
-    console.log('teamId param:', teamId);
     if (!teamId) {
       console.log('No teamId param');
       return;

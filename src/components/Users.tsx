@@ -47,7 +47,6 @@ const Users: React.FC = () => {
       const response = organizationId
         ? await apiService.getUsers({ organization_id: organizationId })
         : await apiService.getUsers();
-      console.log('Users API response:', response.data);
       setUsers(response.data);
     } catch (err) {
       setError('Failed to load users');
