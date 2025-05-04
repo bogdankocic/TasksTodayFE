@@ -384,7 +384,24 @@ const DashboardLayout: React.FC = () => {
           <Outlet />
         </div>
       </main>
-      <SidebarModal isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} user={user} />
+      <SidebarModal
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        user={user}
+        projects={projectsWithPermissions}
+        canCreate={canCreateProject}
+        onCreate={handleCreateProject}
+        onUpdate={handleUpdateProject}
+        onDelete={handleDeleteProject}
+        isChatOpen={isChatOpen}
+        setIsChatOpen={setIsChatOpen}
+        chatMessages={chatMessages}
+        newMessage={newMessage}
+        setNewMessage={setNewMessage}
+        selectedProjectId={selectedProjectId}
+        setSelectedProjectId={setSelectedProjectId}
+        handleSendMessage={handleSendMessage}
+      />
       <CreateProjectModal
         isOpen={isCreateModalOpen}
         onClose={handleCreateModalClose}
