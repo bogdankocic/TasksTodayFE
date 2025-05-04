@@ -6,6 +6,15 @@ import ProfilePhotoInput from './ProfilePhotoInput';
 interface Karma {
   current: number;
   required: number;
+  currentLevel: string;
+  currentLevelNumber: number;
+}
+
+interface Achievement {
+  id: number;
+  title: string;
+  description: string;
+  favicon: string;
 }
 
 interface User {
@@ -15,6 +24,7 @@ interface User {
   email: string;
   profile_photo?: string;
   karma: Karma;
+  achievements: Achievement[];
   tasks_completed_count: number;
   login_strike: number;
   login_after_hours_count: number;
@@ -192,6 +202,26 @@ const MyProfile: React.FC = () => {
             <span>{user.karma.current} /</span>
             <span>{user.karma.required}</span>
           </div>
+        </div>
+
+        {/* Achievements List */}
+        <div className="w-full mt-6">
+          <h4 className="text-lg font-semibold mb-3 border-b border-gray-300 pb-1">Achievements</h4>
+          <ul className="space-y-3 max-h-96 overflow-y-auto">
+            {user.achievements.map((achievement) => (
+              <li key={achievement.id} className="flex items-center space-x-3">
+                <img
+                  src={achievement.favicon}
+                  alt={achievement.title}
+                  className="w-8 h-8 rounded-md object-cover shadow"
+                />
+                <div>
+                  <div className="font-medium text-gray-800">{achievement.title}</div>
+                  <div className="text-sm text-gray-600">{achievement.description}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>
