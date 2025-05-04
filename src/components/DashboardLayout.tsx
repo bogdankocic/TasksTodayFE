@@ -18,6 +18,18 @@ const DashboardLayout: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<{ id: number; title: string; description: string; teams: { id: number; title: string; project_id: number; created_at: string }[] } | null>(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+  type ChatMessage = {
+    user?: {
+      first_name?: string;
+      last_name?: string;
+      email?: string;
+    };
+    text: string;
+  };
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [newMessage, setNewMessage] = useState('');
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -26,6 +38,9 @@ const DashboardLayout: React.FC = () => {
       try {
         const response = await apiService.getProjects();
         setProjects(response.data);
+        if (response.data.length > 0) {
+          setSelectedProjectId(response.data[0].id);
+        }
       } catch (error) {
         setProjectsError('Failed to load projects');
       } finally {
@@ -35,6 +50,51 @@ const DashboardLayout: React.FC = () => {
 
     fetchProjects();
   }, []);
+  
+  useEffect(() => {
+    const fetchChatMessages = async () => {
+      if (selectedProjectId === null) {
+        setChatMessages([]);
+        return;
+      }
+      try {
+        const response = await apiService.getChatMessagesForProject(selectedProjectId);
+        console.log(response.data)
+        if (response.status === 201) {
+          if (Array.isArray(response.data)) {
+            setChatMessages(response.data);
+          } else if (response.data.data && Array.isArray(response.data.data)) {
+            setChatMessages(response.data.data);
+          } else {
+            setChatMessages([]);
+          }
+        } else {
+          setChatMessages([]);
+        }
+      } catch (error) {
+        setChatMessages([]);
+      }
+    };
+    fetchChatMessages();
+  }, [selectedProjectId]);
+  
+  const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedProjectId(Number(e.target.value));
+  };
+
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || selectedProjectId === null) return;
+    try {
+      const response = await apiService.postChatMessageToProject(selectedProjectId, { text: newMessage.trim() });
+      if (response.status === 200) {
+        // Append the full message object returned from API to chatMessages
+        setChatMessages((prev) => [...prev, response.data]);
+        setNewMessage('');
+      }
+    } catch (error) {
+      // Handle error if needed
+    }
+  };
 
   if (!user) {
     return <Navigate to="/" replace />;
@@ -109,7 +169,6 @@ const DashboardLayout: React.FC = () => {
     }
   };
 
-  // For each project, determine canUpdate and canDelete based on user permissions
   const projectsWithPermissions = projects.map((project) => ({
     ...project,
     canUpdate: user.permissions?.can_update_project ?? false,
@@ -118,7 +177,7 @@ const DashboardLayout: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <aside className={`w-64 bg-white shadow-lg border border-gray-200 rounded-r-lg hidden lg:block`}>
+      <aside className={`w-64 bg-white shadow-lg border border-gray-200 rounded-r-lg hidden lg:block relative`}>
         <nav className="mt-12 flex flex-col space-y-2 px-4">
           <div className="mb-4">
             <h3 className="text-sm font-semibold text-gray-500 uppercase mb-4">
@@ -169,6 +228,91 @@ const DashboardLayout: React.FC = () => {
             </div>
           </div>
         </nav>
+
+        {/* Bubble */}
+        <button
+          onClick={() => setIsChatOpen(!isChatOpen)}
+          className="absolute bottom-4 left-4 h-10 w-10 rounded-full bg-red-600 shadow-lg flex items-center justify-center text-white z-50 hover:bg-red-700 transition"
+          aria-label="Open chat"
+        >
+          {/* You can replace this with a chat icon if you want */}
+          💬
+        </button>
+
+        {/* Chat box */}
+        {isChatOpen && (
+        <div
+          className="absolute bottom-16 left-4 w-72 h-80 bg-white border border-gray-300 rounded-lg shadow-lg z-50 p-4 flex flex-col"
+          style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)' }}
+        >
+        <div className="flex justify-between items-center mb-2">
+          <h4 className="font-semibold text-gray-700 flex items-center space-x-2">
+            <span>Chat</span>
+            <select
+              value={selectedProjectId ?? ''}
+              onChange={handleProjectChange}
+              className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label="Select project for chat"
+            >
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.title}
+                </option>
+              ))}
+            </select>
+          </h4>
+          <button
+            onClick={() => setIsChatOpen(false)}
+            className="reset-button-border-and-padding text-gray-500 hover:text-gray-700 focus:outline-none h-8 w-12 rounded"
+            aria-label="Close chat"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto border border-gray-200 rounded p-2 mb-2">
+          {console.log(chatMessages)}
+          {chatMessages.length === 0 ? (
+            <p className="text-gray-500 text-sm">No messages yet.</p>
+          ) : (
+            <ul className="space-y-1 text-sm text-gray-700">
+              {chatMessages.map((msg: any, idx: number) => {
+                const user = msg.user;
+                const userName = user
+                  ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email
+                  : 'System';
+                return (
+                  <li key={idx} className="break-words">
+                    <span className="font-semibold">{userName}:</span> <span>{msg.text}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+        <div className="flex space-x-2">
+          <input
+            type="text"
+            placeholder="Type a message..."
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSendMessage();
+              }
+            }}
+            className="flex-1 border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            onClick={handleSendMessage}
+            className="bg-blue-600 text-white px-3 rounded hover:bg-blue-700 transition"
+            aria-label="Send message"
+          >
+            Send
+          </button>
+        </div>
+        </div>
+        )}
       </aside>
       <main className="flex-1 flex flex-col">
         <header className="sticky top-0 z-10 bg-white border-b border-gray-200">

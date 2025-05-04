@@ -210,9 +210,11 @@ class ApiService {
     this.axiosInstance.get(`/task-notes/tasks/${taskId}`);
 
   // Chat Messages
-  postChatMessage = (projectId: string | number, data: any) =>
-    this.axiosInstance.post(`/chat-messages/projects/${projectId}`, data);
+  getChatMessagesForProject = (projectId: string | number) =>
+    this.axiosInstance.get(`/chat-messages/projects/${projectId}`);
 
+  postChatMessageToProject = (projectId: string | number, data: any) =>
+    this.axiosInstance.post(`/chat-messages/projects/${projectId}`, data);
 }
 
 const apiService = new ApiService();
