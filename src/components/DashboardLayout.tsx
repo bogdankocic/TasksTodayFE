@@ -20,6 +20,9 @@ const DashboardLayout: React.FC = () => {
   const [editingProject, setEditingProject] = useState<{ id: number; title: string; description: string; teams: { id: number; title: string; project_id: number; created_at: string }[] } | null>(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [isMarkingSeen, setIsMarkingSeen] = useState(false);
   type ChatMessage = {
     user?: {
       first_name?: string;
@@ -76,6 +79,67 @@ const DashboardLayout: React.FC = () => {
     };
     fetchChatMessages();
   }, [selectedProjectId]);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      if (!user) return;
+      try {
+        const response = await apiService.getNotifications();
+        if (response.status === 200) {
+          setNotifications(response.data);
+        }
+      } catch (error) {
+        setNotifications([]);
+      }
+    };
+    if (isNotificationsOpen) {
+      fetchNotifications();
+    }
+  }, [isNotificationsOpen, user]);
+
+  // Fetch notifications on mount or when user changes to ensure notifications are loaded
+  useEffect(() => {
+    const fetchNotificationsOnMount = async () => {
+      if (!user) return;
+      try {
+        const response = await apiService.getNotifications();
+        if (response.status === 200) {
+          setNotifications(response.data);
+        }
+      } catch (error) {
+        setNotifications([]);
+      }
+    };
+    fetchNotificationsOnMount();
+  }, [user]);
+
+  useEffect(() => {
+    const markNotificationsSeen = async (ids: number[]) => {
+      if (!user || ids.length === 0) return;
+      setIsMarkingSeen(true);
+      try {
+        await apiService.markNotificationsSeen(ids);
+        setNotifications((prev) =>
+          prev.map((notif) =>
+            ids.includes(notif.id) ? { ...notif, is_seen: 1 } : notif
+          )
+        );
+      } catch (error) {
+        // Handle error if needed
+      } finally {
+        setIsMarkingSeen(false);
+      }
+    };
+
+    if (isNotificationsOpen) {
+      const unseenIds = notifications
+        .filter((notif) => notif.is_seen === 0)
+        .map((notif) => notif.id);
+      if (unseenIds.length > 0) {
+        markNotificationsSeen(unseenIds);
+      }
+    }
+  }, [isNotificationsOpen, notifications, user]);
   
   const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedProjectId(Number(e.target.value));
@@ -336,17 +400,45 @@ const DashboardLayout: React.FC = () => {
             
             <div className="flex items-center gap-4">
               {user ? (
-                <div className="relative inline-block">
-                <button 
-                  onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="reset-button-border-and-padding h-12 w-12 rounded-full"
-                >
-                   {user.profile_photo ? (
-                    <img 
-                      src={user.profile_photo} 
-                      alt="Profile" 
-                      className="h-12 inline rounded-full"
-                    />
+                <div className="relative inline-flex items-center space-x-4">
+                  <div className="relative mr-4">
+                <img
+                  src="/images/bell.png"
+                  alt="Notifications"
+                  className="h-6 w-6 cursor-pointer"
+                  onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                />
+                {notifications.some((notif) => notif.is_seen === 0) && (
+                  <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-orange-500 ring-2 ring-white shadow-lg" />
+                )}
+                    {isNotificationsOpen && (
+                      <div className="absolute right-16 top-14 w-80 max-h-96 overflow-y-auto bg-white rounded-lg shadow-lg border border-gray-200 z-50 p-4">
+                        <h3 className="text-lg font-semibold mb-2">Notifications</h3>
+                        {notifications.length === 0 ? (
+                          <p className="text-gray-500 text-sm">No notifications</p>
+                        ) : (
+                          <ul className="space-y-3 max-h-80 overflow-y-auto">
+                            {notifications.map((notification) => (
+                              <li key={notification.id} className="border-b border-gray-200 pb-2 last:border-none">
+                                <h4 className="font-semibold text-gray-800">{notification.title}</h4>
+                                <p className="text-gray-600 text-sm">{notification.content}</p>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <button 
+                    onClick={() => setIsProfileOpen(!isProfileOpen)}
+                    className="reset-button-border-and-padding h-12 w-12 rounded-full"
+                  >
+                    {user.profile_photo ? (
+                      <img 
+                        src={user.profile_photo} 
+                        alt="Profile" 
+                        className="h-12 inline rounded-full"
+                      />
                     ) : (
                       <span className="text-gray-600 text-sm font-medium">
                         {(user.first_name?.[0] || '') + (user.last_name?.[0] || '')}

@@ -178,8 +178,8 @@ class ApiService {
   // Notifications
   getNotifications = () => this.axiosInstance.get('/notifications');
 
-  markNotificationsSeen = () =>
-    this.axiosInstance.post('/notifications/seen');
+  markNotificationsSeen = (ids: number[]) =>
+    this.axiosInstance.post('/notifications/seen', { notifications: ids });
 
   // Files
   uploadFile = (data: FormData) =>
