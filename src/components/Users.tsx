@@ -24,15 +24,11 @@ const Users: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
-  // New state for modal and form inputs
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteTeamRole, setInviteTeamRole] = useState('');
   const [inviteOrganizationId, setInviteOrganizationId] = useState<string | number | null>(null);
   const [organizations, setOrganizations] = useState<{ id: number | string; name: string }[]>([]);
-
-  // New state for confirm modal
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [userIdToDelete, setUserIdToDelete] = useState<number | string | null>(null);
 
@@ -50,6 +46,7 @@ const Users: React.FC = () => {
       setUsers(response.data);
     } catch (err) {
       setError('Failed to load users');
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -63,7 +60,8 @@ const Users: React.FC = () => {
         const orgResponse = await apiService.getOrganizations();
         setOrganizations(orgResponse.data);
       }
-    } catch {
+    } catch(error) {
+      throw error;
     }
   };
 
@@ -72,7 +70,6 @@ const Users: React.FC = () => {
     fetchUsers();
   }, []);
 
-  // Open modal instead of prompt
   const handleInviteOpen = () => {
     setInviteEmail('');
     setInviteTeamRole('');
@@ -119,8 +116,8 @@ const Users: React.FC = () => {
       }
       setIsInviteModalOpen(false);
       window.location.reload();
-    } catch {
-      alert('Failed to send invitation');
+    } catch(error) {
+      throw error;
     }
   };
 
@@ -135,8 +132,8 @@ const Users: React.FC = () => {
       await apiService.deleteUser(userIdToDelete);
       alert('User deleted');
       fetchUsers();
-    } catch {
-      alert('Failed to delete user');
+    } catch(error) {
+      throw error;
     } finally {
       setIsConfirmModalOpen(false);
       setUserIdToDelete(null);

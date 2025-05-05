@@ -57,6 +57,7 @@ const UserActivate: React.FC = () => {
       } else {
         setError("Activation failed. Please try again.");
       }
+      throw err;
     }
   };
 

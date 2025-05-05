@@ -14,6 +14,7 @@ const Login: React.FC = () => {
     setLoading(true);
     try {
       await login(username, password);
+      window.location.href = "/";
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed');
     } finally {

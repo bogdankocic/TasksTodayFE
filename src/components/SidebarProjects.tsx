@@ -36,7 +36,6 @@ const SidebarProjects: React.FC<SidebarProjectsProps> = ({
     if (isExpanded) {
       setExpandedProjects((prev) => ({ ...prev, [projectId]: false }));
     } else {
-      // Fetch files if not already fetched
       if (!projectFiles[projectId]) {
         try {
           const response = await apiService.getProjectFiles(projectId);
@@ -58,7 +57,6 @@ const SidebarProjects: React.FC<SidebarProjectsProps> = ({
     try {
       const response = await apiService.deleteFile(fileId, 'project');
       if (response.status === 200) {
-        // Remove file from state
         setProjectFiles((prev) => ({
           ...prev,
           [projectId]: prev[projectId].filter((file) => file.id !== fileId),
@@ -163,7 +161,6 @@ const SidebarProjects: React.FC<SidebarProjectsProps> = ({
                     } catch (error) {
                       console.error('Error uploading file:', error);
                     }
-                    // Reset input value to allow uploading the same file again if needed
                     e.target.value = '';
                   }}
                 />

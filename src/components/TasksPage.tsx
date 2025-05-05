@@ -19,7 +19,6 @@ interface Task {
   user_voted?: boolean;
   performer?: User;
   contributor?: User;
-  // Ensure contributor is a single user, not an array
   team_id?: number;
   created_at: string;
   updated_at: string;
@@ -54,7 +53,6 @@ const TaskCard: React.FC<{
       await apiService.voteTask(task.id, { complexity: selectedVote });
       setIsVoting(false);
       setSelectedVote(null);
-      // Optionally refresh tasks or update UI here
       window.location.reload();
     } catch (error) {
       console.error('Failed to submit vote', error);
@@ -162,7 +160,6 @@ const TaskCard: React.FC<{
       <div className="text-xs text-gray-400 relative mt-2">
         Created: {new Date(task.created_at).toLocaleDateString()}
         <div className="absolute bottom-0 right-0 w-8 h-8 rounded-full overflow-hidden border border-gray-300">
-          {/* Performer profile photo */}
           <img
             src={task.performer?.profile_photo || '/images/placeholder.png'}
             alt="Performer"
@@ -203,7 +200,6 @@ const TasksPage: React.FC = () => {
   const [teams, setTeams] = useState<{ id: number; name: string }[]>([]);
   const [taskToUpdate, setTaskToUpdate] = useState<Task | null>(null);
 
-  // New filter states
   const [filterTeamId, setFilterTeamId] = useState<number | ''>('');
   const [filterComplexity, setFilterComplexity] = useState<number | ''>('');
   const [filterSortByTime, setFilterSortByTime] = useState<'asc' | 'desc' | ''>('');
@@ -212,11 +208,9 @@ const TasksPage: React.FC = () => {
 
   const { user } = useAuth();
 
-  // Parse query params to get project_id
   const queryParams = new URLSearchParams(location.search);
   const projectId = queryParams.get('project_id');
 
-  // Apply cached filters if exist on mount or projectId change
   useEffect(() => {
     if (user?.cached_filter) {
       const cached = user.cached_filter;
@@ -238,7 +232,6 @@ const TasksPage: React.FC = () => {
     setLoading(true);
     setError(null);
 
-    // Build filter params object
     const params: any = { project_id: projectId };
     if (filterTeamId !== '') params.team_id = filterTeamId;
     if (filterComplexity !== '') params.complexity = filterComplexity;
@@ -246,7 +239,6 @@ const TasksPage: React.FC = () => {
     if (filterSortByComplexity !== '') params.sort_by_complexity = filterSortByComplexity;
     if (filterSaveFilter) params.save_filter = true;
 
-    // Fetch tasks with filters
     apiService.getTasks(params)
       .then((response) => {
         setTasks(response.data);
@@ -260,7 +252,6 @@ const TasksPage: React.FC = () => {
 
   const fetchTeams = () => {
     if (!projectId) return;
-    // Use the dedicated API endpoint to get teams by project
     apiService.getProjectTeams(Number(projectId))
       .then((response) => {
         const teamsData = response.data;
@@ -275,7 +266,7 @@ const TasksPage: React.FC = () => {
         }
       })
       .catch((error) => {
-        console.error('Failed to load teams', error);
+        throw error;
       });
   };
 
@@ -296,12 +287,10 @@ const TasksPage: React.FC = () => {
       fetchTasks();
       window.location.reload();
     } catch (error) {
-      // Handle error (optional)
-      console.error('Failed to create task', error);
+      throw error;
     }
   };
 
-  // Filter tasks by status
   const todoTasks = tasks.filter((t) => t.status === 'todo');
   const inProgressTasks = tasks.filter((t) => t.status === 'inprogress');
   const completedTasks = tasks.filter((t) => t.status === 'completed');
@@ -365,9 +354,7 @@ const TasksPage: React.FC = () => {
 
   return (
     <div className="p-6">
-      {/* Filters UI */}
       <div className="mb-6 p-4 bg-white rounded shadow border border-gray-200 grid grid-cols-1 md:grid-cols-7 gap-4 items-end">
-        {/* Project filter */}
         <div className="flex flex-col">
           <label htmlFor="projectFilter" className="text-sm font-medium text-gray-700 mb-1">
             Project
@@ -382,7 +369,6 @@ const TasksPage: React.FC = () => {
           />
         </div>
 
-        {/* Team filter */}
         <div className="flex flex-col">
           <label htmlFor="teamFilter" className="text-sm font-medium text-gray-700 mb-1">
             Team
@@ -402,7 +388,6 @@ const TasksPage: React.FC = () => {
           </select>
         </div>
 
-        {/* Complexity filter */}
         <div className="flex flex-col">
           <label htmlFor="complexityFilter" className="text-sm font-medium text-gray-700 mb-1">
             Complexity

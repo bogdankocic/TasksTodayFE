@@ -19,7 +19,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is authenticated on mount
     const checkAuth = async () => {
       try {
         const response = await apiService.getSelf();
@@ -38,7 +37,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = async (email: string, password: string) => {
     try {
       const loginResponse = await apiService.login({ email, password });
-      // Store token from login response
       const token = loginResponse.data.token;
       if (token) {
         localStorage.setItem('authToken', token);
@@ -46,8 +44,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const response = await apiService.getSelf();
       setUser(response.data);
       setIsAuthenticated(true);
-      // Redirect to landing page
-      navigate('/landing');
     } catch (error) {
       console.error('Login failed:', error);
       throw error;

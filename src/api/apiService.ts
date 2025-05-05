@@ -11,7 +11,7 @@ class ApiService {
       headers: {
         'Content-Type': 'application/json',
       },
-      withCredentials: true, // for cookies if needed
+      withCredentials: true,
     });
 
     // Request interceptor for the default instance to add auth token if available
@@ -42,7 +42,6 @@ class ApiService {
           };
           const message = errorMessages[status];
           if (message) {
-            // Import the global toast function and call it
             import('../components/ToastContext').then(({ toast }) => {
               toast(message);
             }).catch(() => {

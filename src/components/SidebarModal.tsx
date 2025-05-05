@@ -12,7 +12,7 @@ interface Project {
 interface SidebarModalProps {
   isOpen: boolean;
   onClose: () => void;
-  user: any; // Replace with the appropriate user type
+  user: any;
   projects: Project[];
   canCreate: boolean;
   onCreate: () => void;
@@ -103,7 +103,6 @@ const SidebarModal: React.FC<SidebarModalProps> = ({
             </div>
           </div>
         </nav>
-        {/* Chat bubble */}
         <button
           onClick={() => setIsChatOpen(!isChatOpen)}
           className="mt-auto mb-2 h-10 w-10 rounded-full bg-red-600 shadow-lg flex items-center justify-center text-white hover:bg-red-700 transition self-start"
@@ -111,7 +110,6 @@ const SidebarModal: React.FC<SidebarModalProps> = ({
         >
           💬
         </button>
-        {/* Chat box */}
           {isChatOpen && (
           <div
             className="w-[36rem] h-80 bg-white border border-gray-300 rounded-lg shadow-lg p-4 flex flex-col absolute bottom-4 left-0 z-50"

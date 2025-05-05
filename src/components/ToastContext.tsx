@@ -15,10 +15,8 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 let toastId = 0;
 
-// Global callback to be set by ToastProvider
 let globalAddToast: ((message: string) => void) | null = null;
 
-// Exported function to be called from anywhere to show toast
 export const toast = (message: string) => {
   if (globalAddToast) {
     globalAddToast(message);
@@ -36,10 +34,9 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     setToasts((prev) => [...prev, { id, message }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((toast) => toast.id !== id));
-    }, 5000); // 5 seconds
+    }, 5000);
   }, []);
 
-  // Set the global callback on mount and clear on unmount
   React.useEffect(() => {
     globalAddToast = addToast;
     return () => {

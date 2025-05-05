@@ -140,7 +140,7 @@ const DashboardLayout: React.FC = () => {
           )
         );
       } catch (error) {
-        // Handle error if needed
+        throw error;
       } finally {
         setIsMarkingSeen(false);
       }
@@ -176,7 +176,7 @@ const DashboardLayout: React.FC = () => {
         }
       }
     } catch (error) {
-      // Handle error if needed
+      throw error;
     }
   };
 
@@ -211,7 +211,6 @@ const DashboardLayout: React.FC = () => {
   const handleDeleteProject = async (projectId: number) => {
     try {
       await apiService.deleteProject(projectId);
-      // Refresh projects list
       const response = await apiService.getProjects();
       setProjects(response.data);
     } catch (error) {
@@ -232,7 +231,6 @@ const DashboardLayout: React.FC = () => {
     try {
       await apiService.createProject(data);
       setIsCreateModalOpen(false);
-      // Refresh projects list
       const response = await apiService.getProjects();
       setProjects(response.data);
       window.location.reload();
@@ -315,17 +313,18 @@ const DashboardLayout: React.FC = () => {
           </div>
         </nav>
 
-        {/* Bubble */}
-        <button
-          onClick={() => setIsChatOpen(!isChatOpen)}
-          className="absolute bottom-4 left-4 h-10 w-10 rounded-full bg-red-600 shadow-lg flex items-center justify-center text-white z-50 hover:bg-red-700 transition"
-          aria-label="Open chat"
-        >
-          {/* You can replace this with a chat icon if you want */}
-          💬
-        </button>
+        {user.role_id !== 1 && (
+          <>
+            <button
+              onClick={() => setIsChatOpen(!isChatOpen)}
+              className="absolute bottom-4 left-4 h-10 w-10 rounded-full bg-red-600 shadow-lg flex items-center justify-center text-white z-50 hover:bg-red-700 transition"
+              aria-label="Open chat"
+            >
+              💬
+            </button>
+          </>
+        )}
 
-        {/* Chat box */}
         {isChatOpen && (
         <div
           className="absolute bottom-16 left-4 w-144 h-160 bg-white border border-gray-300 rounded-lg shadow-lg z-50 p-4 flex flex-col"
@@ -447,7 +446,8 @@ const DashboardLayout: React.FC = () => {
                       </div>
                     )}
                   </div>
-            )}
+                  )
+                  }
                   <button 
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
                     className="reset-button-border-and-padding h-12 w-12 rounded-full mr-0"
@@ -470,12 +470,12 @@ const DashboardLayout: React.FC = () => {
                       <Link to="/my-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left">
                         My Profile
                       </Link>
-                      <button 
+                      <a 
                         onClick={() => logout()} 
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                       >
                         Logout
-                      </button>
+                      </a>
                     </div>
                   )}
                 </div>

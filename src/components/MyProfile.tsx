@@ -107,7 +107,6 @@ const MyProfile: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow flex space-x-8">
-      {/* Left Section - Profile info excluding karma */}
       <div className="flex-1">
         <h2 className="text-2xl font-semibold mb-4 text-center">My Profile</h2>
         <ProfilePhotoInput
@@ -182,7 +181,6 @@ const MyProfile: React.FC = () => {
         </form>
       </div>
 
-      {/* Right Section - Karma display */}
       <div className="w-80 p-6 bg-gray-50 rounded-lg shadow flex flex-col items-center space-y-6">
         <h3 className="text-xl font-semibold mb-2">Karma</h3>
         <div className="flex items-center space-x-4">
@@ -204,7 +202,6 @@ const MyProfile: React.FC = () => {
           </div>
         </div>
 
-        {/* Achievements List */}
         <div className="w-full mt-6">
           <h4 className="text-lg font-semibold mb-3 border-b border-gray-300 pb-1">Achievements</h4>
           <ul className="space-y-3 max-h-96 overflow-y-auto">

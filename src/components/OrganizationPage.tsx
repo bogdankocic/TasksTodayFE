@@ -17,7 +17,6 @@ const OrganizationPage: React.FC = () => {
     email: '',
   });
 
-  // Add state for profile photo and file
   const [profilePhoto, setProfilePhoto] = useState<string>('');
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);

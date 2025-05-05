@@ -32,7 +32,6 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
 
-  // New state for notes section
   const [notesOpen, setNotesOpen] = useState(false);
   interface Note {
     id: number;
@@ -49,8 +48,6 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
   const [notes, setNotes] = useState<Note[]>([]);
   const [loadingNotes, setLoadingNotes] = useState(false);
   const [notesError, setNotesError] = useState<string | null>(null);
-
-  // New state for creating note
   const [newNoteText, setNewNoteText] = useState('');
   const [creatingNote, setCreatingNote] = useState(false);
   const [createNoteError, setCreateNoteError] = useState<string | null>(null);
@@ -74,7 +71,6 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
     }
   }, [performerDropdownOpen, contributorDropdownOpen, initialData]);
 
-  // Fetch notes when notesOpen changes to true
   useEffect(() => {
     if (notesOpen && initialData) {
       setLoadingNotes(true);
@@ -84,9 +80,10 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
           setNotes(response.data);
           setLoadingNotes(false);
         })
-        .catch(() => {
+        .catch((error) => {
           setNotesError('Failed to load notes');
           setLoadingNotes(false);
+          throw error;
         });
     }
   }, [notesOpen, initialData]);
@@ -99,8 +96,9 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
       } else {
         setTeamMembers([]);
       }
-    } catch {
+    } catch(error) {
       setTeamMembers([]);
+      throw error;
     }
   };
 
@@ -110,8 +108,8 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
       await apiService.assignPerformer(initialData.id, user.id);
       setSelectedPerformer(user);
       setPerformerDropdownOpen(false);
-    } catch {
-      // handle error silently
+    } catch(error) {
+      throw error;
     }
   };
 
@@ -121,8 +119,8 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
       await apiService.assignContributor(initialData.id, user.id);
       setSelectedContributor(user);
       setContributorDropdownOpen(false);
-    } catch {
-      // handle error silently
+    } catch(error) {
+      throw error;
     }
   };
 
@@ -144,7 +142,6 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
     try {
       await apiService.createTaskNote(initialData.id, { text: newNoteText.trim() });
       setNewNoteText('');
-      // Refresh notes
       const response = await apiService.getTaskNotes(initialData.id);
       setNotes(response.data);
     } catch {
@@ -189,7 +186,6 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
               disabled={submitting}
             />
             <div className="flex space-x-8 mb-6 items-center">
-              {/* Performer */}
               <div className="flex flex-col items-center">
                 <label className="mb-1 text-sm font-medium text-gray-700">Performer</label>
                 <div
@@ -222,7 +218,7 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
                   </div>
                 )}
               </div>
-              {/* Contributor */}
+
               <div className="flex flex-col items-center">
                 <label className="mb-1 text-sm font-medium text-gray-700">Contributor</label>
                 <div
@@ -257,7 +253,6 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
               </div>
             </div>
 
-            {/* Files upload and list */}
             <div className="mb-4">
               <label className="block mb-2 font-medium">Files</label>
               <div className="flex items-center space-x-2 mb-2">
@@ -288,7 +283,7 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
                         setFiles((prev) => [...prev, response.data]);
                       }
                     } catch (error) {
-                      console.error('File upload failed', error);
+                      throw error;
                     } finally {
                       setUploading(false);
                       if (e.target) e.target.value = '';
@@ -315,7 +310,7 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
                               a.remove();
                               window.URL.revokeObjectURL(url);
                             } catch (error) {
-                              console.error('Download failed', error);
+                              throw error;
                             }
                           }}
                         >
@@ -330,10 +325,9 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
                             if (!initialData) return;
                             try {
                               await apiService.deleteFile(file.id, 'task');
-                              // Remove file from state
                               setFiles((prev) => prev.filter((f) => f.id !== file.id));
                             } catch (error) {
-                              console.error('Failed to delete file', error);
+                              throw error;
                             }
                           }}
                         />

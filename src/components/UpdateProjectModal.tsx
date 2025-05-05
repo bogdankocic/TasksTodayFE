@@ -62,8 +62,7 @@ const UpdateProjectModal: React.FC<UpdateProjectModalProps> = ({
       await apiService.deleteTeam(teamId);
       setTeams((prevTeams) => prevTeams.filter((t) => t.id !== teamId));
     } catch (error) {
-      console.error('Failed to delete team:', error);
-      // Optionally show error to user
+      throw error;
     }
   };
 
@@ -88,7 +87,7 @@ const UpdateProjectModal: React.FC<UpdateProjectModalProps> = ({
       setNewTeamTitle('');
       setIsCreatingTeam(false);
     } catch (error) {
-      console.error('Failed to create team:', error);
+      throw error;
     }
   };
 
@@ -100,7 +99,7 @@ const UpdateProjectModal: React.FC<UpdateProjectModalProps> = ({
         prevTeams.map((t) => (t.id === teamId ? { ...t, title: newTitle.trim() } : t))
       );
     } catch (error) {
-      console.error('Failed to update team name:', error);
+      throw error;
     }
   };
 
@@ -188,7 +187,6 @@ const UpdateProjectModal: React.FC<UpdateProjectModalProps> = ({
                       role="button"
                       tabIndex={0}
                       onClick={() => {
-                        // Redirect to team members page
                         window.location.href = `/teams/${team.id}/members`;
                       }}
                       onKeyPress={(e) => { if (e.key === 'Enter') {

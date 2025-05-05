@@ -14,7 +14,6 @@ const Organizations: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<any | null>(null);
 
-  // New state for confirm modal
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [orgIdToDelete, setOrgIdToDelete] = useState<number | null>(null);
 
