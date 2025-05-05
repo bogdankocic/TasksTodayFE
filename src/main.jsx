@@ -15,6 +15,8 @@ import { AuthProvider, useAuth } from './components/AuthContext'
 import React from 'react'
 import TeamMembersPage from './components/TeamMembersPage'
 import TasksPage from './components/TasksPage'
+import { ToastProvider } from './components/ToastContext'
+import Toast from './components/Toast'
 
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -60,7 +62,10 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <ToastProvider>
+          <AppRoutes />
+          <Toast />
+        </ToastProvider>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>,

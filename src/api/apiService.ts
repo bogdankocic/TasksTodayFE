@@ -16,9 +16,10 @@ class ApiService {
 
     // Request interceptor for the default instance to add auth token if available
     this.axiosInstance.interceptors.request.use(
-      (config: AxiosRequestConfig) => {
+      (config: any) => {
         const token = localStorage.getItem('authToken');
-        if (token && config.headers) {
+        if (token) {
+          config.headers = config.headers || {};
           config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
@@ -30,7 +31,25 @@ class ApiService {
     this.axiosInstance.interceptors.response.use(
       (response: AxiosResponse) => response,
       (error) => {
-        // You can add global error handling here
+        if (error.response) {
+          const status = error.response.status;
+          const errorMessages: Record<number, string> = {
+            400: 'Bad Request. Please check your input.',
+            401: 'Unauthorized. Please log in again.',
+            403: 'Forbidden. You do not have permission to perform this action.',
+            404: 'Not Found. The requested resource was not found.',
+            500: 'Internal Server Error. Please try again later.',
+          };
+          const message = errorMessages[status];
+          if (message) {
+            // Import the global toast function and call it
+            import('../components/ToastContext').then(({ toast }) => {
+              toast(message);
+            }).catch(() => {
+              console.error('Toast context not available for error message');
+            });
+          }
+        }
         return Promise.reject(error);
       }
     );
