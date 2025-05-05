@@ -65,7 +65,7 @@ const TeamMembersPage: React.FC = () => {
       setMembers(response.data);
       setIsModalOpen(false);
       setSelectedUserId(null);
-      alert('Member added successfully');
+      window.location.reload();
     } catch (err) {
       alert('Failed to add member');
     }

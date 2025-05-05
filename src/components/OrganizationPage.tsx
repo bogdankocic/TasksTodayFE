@@ -70,6 +70,7 @@ const OrganizationPage: React.FC = () => {
       }
       await apiService.updateOrganization(organization.id, data);
       setOrganization({ ...organization, ...formData });
+      window.location.reload();
     } catch {
       setError('Failed to update organization.');
     } finally {

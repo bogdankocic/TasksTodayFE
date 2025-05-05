@@ -75,7 +75,7 @@ const MyProfile: React.FC = () => {
     
     try {
       await apiService.selfUpdate(formData);
-      alert('Profile updated successfully.');
+      window.location.reload();
     } catch (error) {
       console.error('Failed to update profile:', error);
       alert('Failed to update profile. Please try again.');

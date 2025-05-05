@@ -235,6 +235,7 @@ const DashboardLayout: React.FC = () => {
       // Refresh projects list
       const response = await apiService.getProjects();
       setProjects(response.data);
+      window.location.reload();
     } catch (error) {
       alert('Failed to create project');
     }
@@ -248,6 +249,7 @@ const DashboardLayout: React.FC = () => {
       setEditingProject(null);
       const response = await apiService.getProjects();
       setProjects(response.data);
+      window.location.reload();
     } catch (error) {
       alert('Failed to update project');
     }

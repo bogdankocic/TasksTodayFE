@@ -55,6 +55,7 @@ const TaskCard: React.FC<{
       setIsVoting(false);
       setSelectedVote(null);
       // Optionally refresh tasks or update UI here
+      window.location.reload();
     } catch (error) {
       console.error('Failed to submit vote', error);
     }
@@ -293,6 +294,7 @@ const TasksPage: React.FC = () => {
         team_id: data.team_id,
       });
       fetchTasks();
+      window.location.reload();
     } catch (error) {
       // Handle error (optional)
       console.error('Failed to create task', error);
@@ -355,6 +357,7 @@ const TasksPage: React.FC = () => {
         description: data.description,
       });
       fetchTasks();
+      window.location.reload();
     } catch (error) {
       console.error('Failed to update task', error);
     }

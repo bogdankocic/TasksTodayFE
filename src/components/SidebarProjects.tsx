@@ -148,7 +148,7 @@ const SidebarProjects: React.FC<SidebarProjectsProps> = ({
                     formData.append('file', file);
                     try {
                       const response = await apiService.uploadFile(formData);
-                      if (response.status === 200) {
+                      if (response.status === 200 || response.status === 201) {
                         const newFile: File = response.data;
                         setProjectFiles((prev) => {
                           const existingFiles = prev[project.id] || [];
