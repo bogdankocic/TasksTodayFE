@@ -418,7 +418,8 @@ const DashboardLayout: React.FC = () => {
             <div className="flex items-center gap-4">
               {user ? (
                 <div className="relative inline-flex items-center space-x-4">
-                  <div className="relative mr-4">
+                  {user.role_id !== 1 && (
+              <div className="relative mr-4">
                 <img
                   src="/images/bell.png"
                   alt="Notifications"
@@ -446,6 +447,7 @@ const DashboardLayout: React.FC = () => {
                       </div>
                     )}
                   </div>
+            )}
                   <button 
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
                     className="reset-button-border-and-padding h-12 w-12 rounded-full mr-0"

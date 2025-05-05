@@ -117,8 +117,8 @@ const Users: React.FC = () => {
       } else {
         await apiService.inviteUser({ email: inviteEmail });
       }
-      alert('Invitation sent');
       setIsInviteModalOpen(false);
+      window.location.reload();
     } catch {
       alert('Failed to send invitation');
     }
