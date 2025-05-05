@@ -215,6 +215,18 @@ const TasksPage: React.FC = () => {
   const queryParams = new URLSearchParams(location.search);
   const projectId = queryParams.get('project_id');
 
+  // Apply cached filters if exist on mount or projectId change
+  useEffect(() => {
+    if (user?.cached_filter) {
+      const cached = user.cached_filter;
+      setFilterTeamId(cached.team_id ?? '');
+      setFilterComplexity(cached.complexity ?? '');
+      setFilterSortByTime(cached.sort_by_time ?? '');
+      setFilterSortByComplexity(cached.sort_by_complexity ?? '');
+      setFilterSaveFilter(true);
+    }
+  }, [user]);
+
   const fetchTasks = () => {
     if (!projectId) {
       setError('Project ID is required to load tasks.');
@@ -351,7 +363,22 @@ const TasksPage: React.FC = () => {
   return (
     <div className="p-6">
       {/* Filters UI */}
-      <div className="mb-6 p-4 bg-white rounded shadow border border-gray-200 grid grid-cols-6 gap-4 items-end">
+      <div className="mb-6 p-4 bg-white rounded shadow border border-gray-200 grid grid-cols-7 gap-4 items-end">
+        {/* Project filter */}
+        <div className="flex flex-col">
+          <label htmlFor="projectFilter" className="text-sm font-medium text-gray-700 mb-1">
+            Project
+          </label>
+          <input
+            id="projectFilter"
+            type="text"
+            value={projectId ?? ''}
+            readOnly
+            className="border border-gray-300 rounded px-3 py-1 bg-gray-100 cursor-not-allowed"
+            title="Project ID is read-only"
+          />
+        </div>
+
         {/* Team filter */}
         <div className="flex flex-col">
           <label htmlFor="teamFilter" className="text-sm font-medium text-gray-700 mb-1">
