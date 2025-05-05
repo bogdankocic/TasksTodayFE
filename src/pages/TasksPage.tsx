@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import apiService from '../api/apiService';
-import CreateTaskModal from './CreateTaskModal';
-import UpdateTaskModal from './UpdateTaskModal';
+import CreateTaskModal from '../components/CreateTaskModal';
+import UpdateTaskModal from '../components/UpdateTaskModal';
 
 interface User {
   id: number;
@@ -24,7 +24,7 @@ interface Task {
   updated_at: string;
 }
 
-import { useAuth } from './AuthContext';
+import { useAuth } from '../components/AuthContext';
 
 const TaskCard: React.FC<{
   task: Task;

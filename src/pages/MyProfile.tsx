@@ -1,7 +1,7 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent, useRef } from 'react';
-import { useAuth } from './AuthContext';
+import { useAuth } from '../components/AuthContext';
 import apiService from '../api/apiService';
-import ProfilePhotoInput from './ProfilePhotoInput';
+import ProfilePhotoInput from '../components/ProfilePhotoInput';
 
 interface Karma {
   current: number;

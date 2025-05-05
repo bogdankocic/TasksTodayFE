@@ -1,6 +1,6 @@
 import React, { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import apiService from '../api/apiService';
-import ProfilePhotoInput from './ProfilePhotoInput';
+import ProfilePhotoInput from '../components/ProfilePhotoInput';
 
 interface OrganizationData {
   id: number;

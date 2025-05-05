@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import apiService from '../api/apiService';
-import ConfirmModal from './ConfirmModal';
+import ConfirmModal from '../components/ConfirmModal';
 import { useSearchParams } from 'react-router-dom';
 
 interface User {
