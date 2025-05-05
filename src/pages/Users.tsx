@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import apiService from '../api/apiService';
 import ConfirmModal from '../components/ConfirmModal';
+import TagIcon from '../components/TagIcon';
 import { useSearchParams } from 'react-router-dom';
 
 interface User {
@@ -17,6 +18,7 @@ interface User {
     id: number | string;
     name: string;
   };
+  tags?: any[];
 }
 
 const Users: React.FC = () => {
@@ -181,36 +183,39 @@ const Users: React.FC = () => {
         </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-100">
-                <td className="px-4 py-2 border-b align-middle">{user.first_name}</td>
-                <td className="px-4 py-2 border-b align-middle">{user.last_name}</td>
-                <td className="px-4 py-2 border-b align-middle">{user.email}</td>
-                <td className="px-4 py-2 border-b text-center align-middle">
-                  <span
-                    className={`inline-block w-3 h-3 rounded-full ${
-                      user.is_verified === 1 ? 'bg-green-500' : 'bg-red-500'
-                    }`}
-                    title={user.is_verified === 1 ? 'Verified' : 'Not Verified'}
-                  />
-                </td>
-                <td className="px-4 py-2 border-b align-middle">{user.teamrole ?? 'N/A'}</td>
-                <td className="px-4 py-2 border-b align-middle">{user.karma.currentLevel}</td>
-                <td className="px-4 py-2 border-b align-middle">{user.organization?.name ?? 'N/A'}</td>
-                <td className="px-4 py-2 border-b text-center align-middle">
-                {currentUser?.permissions?.can_delete_user && (
-                  <button
-                    onClick={() => handleDelete(user.id)}
-                    disabled={currentUser?.id === user.id}
-                    className={`text-red-600 hover:text-red-800 font-semibold ${currentUser?.id === user.id ? 'disabled:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none' : null}`}
-                    aria-label={`Delete user ${user.first_name} ${user.last_name}`}
-                  >
-                    Delete
-                  </button>
-                )}
-                </td>
-              </tr>
-            ))}
+            {users.map((user) => {
+              console.log('User tags:', user.tags);
+              return (
+                <tr key={user.id} className="hover:bg-gray-100">
+                  <td className="px-4 py-2 border-b align-middle">{user.first_name}</td>
+                  <td className="px-4 py-2 border-b align-middle">{user.last_name}</td>
+                  <td className="px-4 py-2 border-b align-middle">{user.email}</td>
+                  <td className="px-4 py-2 border-b text-center align-middle">
+                    <span
+                      className={`inline-block w-3 h-3 rounded-full ${
+                        user.is_verified === 1 ? 'bg-green-500' : 'bg-red-500'
+                      }`}
+                      title={user.is_verified === 1 ? 'Verified' : 'Not Verified'}
+                    />
+                  </td>
+                  <td className="px-4 py-2 border-b align-middle">{user.teamrole ?? 'N/A'}</td>
+                  <td className="px-4 py-2 border-b align-middle">{user.karma.currentLevel}</td>
+                  <td className="px-4 py-2 border-b align-middle">{user.organization?.name ?? 'N/A'}</td>
+                  <td className="text-center px-4 py-2 border-b align-middle">
+                  {currentUser?.permissions?.can_delete_user && (
+                    <button
+                      onClick={() => handleDelete(user.id)}
+                      disabled={currentUser?.id === user.id}
+                      className={`text-red-600 hover:text-red-800 font-semibold ${currentUser?.id === user.id ? 'disabled:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none' : null}`}
+                      aria-label={`Delete user ${user.first_name} ${user.last_name}`}
+                    >
+                      Delete
+                    </button>
+                  )}
+                  </td>
+                </tr>
+              );
+            })}
             {users.length === 0 && (
               <tr>
                 <td colSpan={7} className="text-center py-4 text-gray-500">

@@ -5,8 +5,8 @@ import SidebarModal from './SidebarModal';
 import SidebarProjects from './SidebarProjects';
 import CreateProjectModal from './CreateProjectModal';
 import UpdateProjectModal from './UpdateProjectModal';
-import TeamMembersPage from './TeamMembersPage';
 import apiService from '../api/apiService';
+import TagIcon from './TagIcon';
 
 const DashboardLayout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -355,23 +355,29 @@ const DashboardLayout: React.FC = () => {
           </button>
         </div>
         <div className="flex-1 overflow-y-auto border border-gray-200 rounded p-2 mb-2">
-          {chatMessages.length === 0 ? (
-            <p className="text-gray-500 text-sm">No messages yet.</p>
-          ) : (
-            <ul className="space-y-1 text-sm text-gray-700">
-              {chatMessages.map((msg: any, idx: number) => {
-                const user = msg.user;
-                const userName = user
-                  ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email
-                  : 'System';
-                return (
-                  <li key={idx} className="break-words">
-                    <span className="font-semibold">{userName}:</span> <span>{msg.text}</span>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+              {chatMessages.length === 0 ? (
+                <p className="text-gray-500 text-sm">No messages yet.</p>
+              ) : (
+                <ul className="space-y-1 text-sm text-gray-700">
+                  {chatMessages.map((msg: any, idx: number) => {
+                    const user = msg.user;
+                    const userName = user
+                      ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email
+                      : 'System';
+                    return (
+                      <li key={idx} className="break-words">
+                        <span className="font-semibold flex items-center space-x-1">
+                          <span>{userName}:</span>
+                          {/* Render user tags here */}
+                          {user && Array.isArray(user.tags) && user.tags.map((tag: any) => (
+                            <TagIcon key={tag.id} tag={tag} />
+                          ))}
+                        </span> <span>{msg.text}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
         </div>
         <div className="flex space-x-2">
           <input

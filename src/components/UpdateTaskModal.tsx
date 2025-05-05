@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiService from '../api/apiService';
+import TagIcon from './TagIcon';
 
 interface User {
   id: number;
@@ -375,9 +376,15 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ isOpen, onClose, onUp
                   : 'Unknown user';
                 return (
                   <li key={note.id} className="p-2 bg-white rounded shadow-sm border border-gray-200">
-                  <p className="text-gray-800">{note.text}</p>
-                  <p className="text-xs font-semibold mt-1"><strong>{displayName}</strong></p>
-                  <p className="text-xs text-gray-500">{new Date(note.created_at).toLocaleString()}</p>
+                    <div className="flex items-center space-x-1 mb-1">
+                      <p className="text-xs font-semibold"><strong>{displayName}</strong></p>
+                      {console.log(user)}
+                      {user && Array.isArray((user as any).tags) && (user as any).tags.map((tag: any) => (
+                        <TagIcon key={tag.id} tag={tag} />
+                      ))}
+                    </div>
+                    <p className="text-gray-800">{note.text}</p>
+                    <p className="text-xs text-gray-500">{new Date(note.created_at).toLocaleString()}</p>
                   </li>
                 );
               })}

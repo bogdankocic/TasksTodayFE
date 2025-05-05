@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import apiService from '../api/apiService';
+import TagIcon from '../components/TagIcon';
 
 interface User {
   id: number;
@@ -8,6 +9,7 @@ interface User {
   last_name: string;
   email: string;
   is_verified: boolean;
+  tags?: any[];
 }
 
 const TeamMembersPage: React.FC = () => {
@@ -112,6 +114,15 @@ const TeamMembersPage: React.FC = () => {
                   ? `${member.first_name} ${member.last_name}`
                   : member.email}
               </p>
+              {/* Render user tags here */}
+              {Array.isArray(member.tags) && member.tags
+                .filter(tag => tag.project_id === projectId)
+                .map((tag) => (
+                  <span key={tag.id} className="mr-1 inline-block">
+                    <TagIcon tag={tag} />
+                  </span>
+                ))
+              }
             </div>
             <div className="flex space-x-3">
               <img
