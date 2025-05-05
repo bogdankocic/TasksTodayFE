@@ -202,6 +202,13 @@ const TasksPage: React.FC = () => {
   const [teams, setTeams] = useState<{ id: number; name: string }[]>([]);
   const [taskToUpdate, setTaskToUpdate] = useState<Task | null>(null);
 
+  // New filter states
+  const [filterTeamId, setFilterTeamId] = useState<number | ''>('');
+  const [filterComplexity, setFilterComplexity] = useState<number | ''>('');
+  const [filterSortByTime, setFilterSortByTime] = useState<'asc' | 'desc' | ''>('');
+  const [filterSortByComplexity, setFilterSortByComplexity] = useState<'asc' | 'desc' | ''>('');
+  const [filterSaveFilter, setFilterSaveFilter] = useState<boolean>(false);
+
   const { user } = useAuth();
 
   // Parse query params to get project_id
@@ -218,8 +225,16 @@ const TasksPage: React.FC = () => {
     setLoading(true);
     setError(null);
 
-    // Fetch tasks with project_id filter
-    apiService.getTasks({ project_id: projectId })
+    // Build filter params object
+    const params: any = { project_id: projectId };
+    if (filterTeamId !== '') params.team_id = filterTeamId;
+    if (filterComplexity !== '') params.complexity = filterComplexity;
+    if (filterSortByTime !== '') params.sort_by_time = filterSortByTime;
+    if (filterSortByComplexity !== '') params.sort_by_complexity = filterSortByComplexity;
+    if (filterSaveFilter) params.save_filter = true;
+
+    // Fetch tasks with filters
+    apiService.getTasks(params)
       .then((response) => {
         setTasks(response.data);
         setLoading(false);
@@ -335,6 +350,107 @@ const TasksPage: React.FC = () => {
 
   return (
     <div className="p-6">
+      {/* Filters UI */}
+      <div className="mb-6 p-4 bg-white rounded shadow border border-gray-200 grid grid-cols-6 gap-4 items-end">
+        {/* Team filter */}
+        <div className="flex flex-col">
+          <label htmlFor="teamFilter" className="text-sm font-medium text-gray-700 mb-1">
+            Team
+          </label>
+          <select
+            id="teamFilter"
+            value={filterTeamId}
+            onChange={(e) => setFilterTeamId(e.target.value === '' ? '' : Number(e.target.value))}
+            className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">All Teams</option>
+            {teams.map((team) => (
+              <option key={team.id} value={team.id}>
+                {team.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Complexity filter */}
+        <div className="flex flex-col">
+          <label htmlFor="complexityFilter" className="text-sm font-medium text-gray-700 mb-1">
+            Complexity
+          </label>
+          <select
+            id="complexityFilter"
+            value={filterComplexity}
+            onChange={(e) => setFilterComplexity(e.target.value === '' ? '' : Number(e.target.value))}
+            className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Any</option>
+            {[1, 2, 3, 4, 5].map((num) => (
+              <option key={num} value={num}>
+                {num}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Sort by time */}
+        <div className="flex flex-col">
+          <label htmlFor="sortByTimeFilter" className="text-sm font-medium text-gray-700 mb-1">
+            Sort by Time
+          </label>
+          <select
+            id="sortByTimeFilter"
+            value={filterSortByTime}
+            onChange={(e) => setFilterSortByTime(e.target.value as 'asc' | 'desc' | '')}
+            className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">None</option>
+            <option value="asc">Oldest First</option>
+            <option value="desc">Newest First</option>
+          </select>
+        </div>
+
+        {/* Sort by complexity */}
+        <div className="flex flex-col">
+          <label htmlFor="sortByComplexityFilter" className="text-sm font-medium text-gray-700 mb-1">
+            Sort by Complexity
+          </label>
+          <select
+            id="sortByComplexityFilter"
+            value={filterSortByComplexity}
+            onChange={(e) => setFilterSortByComplexity(e.target.value as 'asc' | 'desc' | '')}
+            className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">None</option>
+            <option value="asc">Lowest First</option>
+            <option value="desc">Highest First</option>
+          </select>
+        </div>
+
+        {/* Save filter */}
+        <div className="flex items-center space-x-2 self-center">
+          <input
+            id="saveFilter"
+            type="checkbox"
+            checked={filterSaveFilter}
+            onChange={(e) => setFilterSaveFilter(e.target.checked)}
+            className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+          />
+          <label htmlFor="saveFilter" className="text-sm font-medium text-gray-700">
+            Save Filter
+          </label>
+        </div>
+
+        {/* Apply button */}
+        <div className="flex justify-end">
+          <button
+            onClick={fetchTasks}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Apply Filters
+          </button>
+        </div>
+      </div>
+
       <h2 className="text-2xl font-bold mb-6">Tasks</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <section>
