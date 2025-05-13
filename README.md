@@ -1,43 +1,36 @@
-## Local Setup Instructions
+## Instrukcije za lokalni setup
 
-Follow these steps to get the application running locally on your machine:
+Pratiti sledeće korake za pokretanje aplikacije na lokalnoj mašini:
 
-### 1. Clone the repository
+### 1. Klonirati repozitorijum
 
 ```bash
 git clone https://github.com/your-username/TasksTodayFE.git
 cd TasksTodayFE
 ```
 
-### 2. Install dependencies
+### 2. Instalirati dependecy-je
 
-Make sure you have Node.js installed (version 14 or higher recommended).
-
-Install the project dependencies using npm or yarn:
+Node.js (verzija 14 ili više).
 
 ```bash
 npm install
-# or
+# ili
 yarn install
 ```
 
-### 3. Environment Variables
+### 3. Environment variable
 
-Create a `.env` file in the root of the project to configure environment variables.
+Napraviti `.env` fajl u root-u projekta.
 
-Here is an example `.env` file:
+Ovo je primer `.env` fajla:
 
 ```
-VITE_API_BASE_URL=https://api.example.com
+VITE_API_BASE_URL=https:localhost:8000/api
 VITE_OTHER_ENV_VAR=value
 ```
 
-- `VITE_API_BASE_URL`: The base URL for your API endpoints.
-- Add any other environment variables your app requires, prefixed with `VITE_`.
-
-### 4. Run the development server
-
-Start the local development server with:
+### 4. Pokrenuti server
 
 ```bash
 npm run dev
@@ -45,4 +38,4 @@ npm run dev
 yarn dev
 ```
 
-The app will be available at `http://localhost:517(3,4,5...)` (or the port shown in your terminal).
+Aplikacija će biti dostupna na `http://localhost:5173` (ili portu koji je prikazan u konzoli).
