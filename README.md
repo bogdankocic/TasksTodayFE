@@ -1,12 +1,48 @@
-# React + Vite
+## Local Setup Instructions
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Follow these steps to get the application running locally on your machine:
 
-Currently, two official plugins are available:
+### 1. Clone the repository
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```bash
+git clone https://github.com/your-username/TasksTodayFE.git
+cd TasksTodayFE
+```
 
-## Expanding the ESLint configuration
+### 2. Install dependencies
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Make sure you have Node.js installed (version 14 or higher recommended).
+
+Install the project dependencies using npm or yarn:
+
+```bash
+npm install
+# or
+yarn install
+```
+
+### 3. Environment Variables
+
+Create a `.env` file in the root of the project to configure environment variables.
+
+Here is an example `.env` file:
+
+```
+VITE_API_BASE_URL=https://api.example.com
+VITE_OTHER_ENV_VAR=value
+```
+
+- `VITE_API_BASE_URL`: The base URL for your API endpoints.
+- Add any other environment variables your app requires, prefixed with `VITE_`.
+
+### 4. Run the development server
+
+Start the local development server with:
+
+```bash
+npm run dev
+# or
+yarn dev
+```
+
+The app will be available at `http://localhost:5173` (or the port shown in your terminal).
