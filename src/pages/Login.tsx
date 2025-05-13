@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth } from './AuthContext';
+import { useAuth } from '../components/AuthContext';
 
 const Login: React.FC = () => {
   const { login } = useAuth();
@@ -14,6 +14,7 @@ const Login: React.FC = () => {
     setLoading(true);
     try {
       await login(username, password);
+      window.location.href = "/";
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed');
     } finally {

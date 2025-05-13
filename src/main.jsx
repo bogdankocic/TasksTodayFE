@@ -3,13 +3,20 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import DashboardLayout from './components/DashboardLayout'
-import DashboardHome from './components/DashboardHome'
-import Organizations from './components/Organizations'
-import Users from './components/Users'
-import Login from './components/Login'
-import Landing from './components/Landing'
+import DashboardHome from './pages/DashboardHome'
+import Organizations from './pages/Organizations'
+import Users from './pages/Users'
+import OrganizationPage from './pages/OrganizationPage'
+import MyProfile from './pages/MyProfile'
+import Login from './pages/Login'
+import Landing from './pages/Landing'
+import UserActivate from './pages/UserActivate'
 import { AuthProvider, useAuth } from './components/AuthContext'
 import React from 'react'
+import TeamMembersPage from './pages/TeamMembersPage'
+import TasksPage from './pages/TasksPage'
+import { ToastProvider } from './components/ToastContext'
+import Toast from './components/Toast'
 
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -27,6 +34,7 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/user-activate" element={<UserActivate />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     );
@@ -37,7 +45,14 @@ const AppRoutes = () => {
       <Route path="/" element={<DashboardLayout />}>
         <Route index element={<DashboardHome />} />
         <Route path="organizations" element={<Organizations />} />
+        <Route path="organization" element={<OrganizationPage />} />
         <Route path="users" element={<Users />} />
+        <Route path="my-profile" element={<MyProfile />} />
+        <Route
+          path="teams/:teamId/members"
+          element={<TeamMembersPage />}
+        />
+        <Route path="tasks" element={<TasksPage />} />
       </Route>
     </Routes>
   );
@@ -47,7 +62,10 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <ToastProvider>
+          <AppRoutes />
+          <Toast />
+        </ToastProvider>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>,
